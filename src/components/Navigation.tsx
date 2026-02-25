@@ -10,7 +10,7 @@ export const Navigation: React.FC = () => {
       <div className="navbar-container">
         <div className="navbar-brand">
           <h1>Apricity</h1>
-          <span className="tagline">Security Monitoring Hub</span>
+          <span className="tagline">Simple Dashboard</span>
         </div>
 
         <button
@@ -23,10 +23,9 @@ export const Navigation: React.FC = () => {
         <div className={`navbar-menu ${isMenuOpen ? 'open' : ''}`}>
           <div className="nav-links">
             <a href="/" className="nav-link">Dashboard</a>
-            <a href="/alerts" className="nav-link">Alerts</a>
-            <a href="/vulnerabilities" className="nav-link">Vulnerabilities</a>
-            <a href="/network" className="nav-link">Network</a>
-            <a href="/reports" className="nav-link">Reports</a>
+            <a href="/items" className="nav-link">Items</a>
+            <a href="/settings" className="nav-link">Settings</a>
+            <a href="/about" className="nav-link">About</a>
           </div>
 
           <div className="nav-actions">

@@ -1,106 +1,81 @@
-import React from 'react'
-import { useSecurityAlerts, useSystemStatus } from '@/hooks/useAlerts'
-import { AlertCard, StatCard, Navigation, Container, Card } from '@/components'
+import React, { useState } from 'react'
+import { Navigation, Container, Card } from '@/components'
 import './Dashboard.css'
 
 export const Dashboard: React.FC = () => {
-  const { alerts, loading: alertsLoading } = useSecurityAlerts()
-  const { status } = useSystemStatus()
-
-  const criticalAlerts = alerts.filter((a: any) => a.level === 'critical' && !a.resolved).length
-  const highAlerts = alerts.filter((a: any) => a.level === 'high' && !a.resolved).length
+  const [items, setItems] = useState<any[]>([])
 
   return (
     <>
       <Navigation />
       <div className="dashboard">
         <Container className="dashboard-container">
-          <h1 className="page-title">Security Dashboard</h1>
+          <h1 className="page-title">Dashboard</h1>
 
           <div className="stats-grid">
-            <StatCard
-              title="Threat Level"
-              value={`${status?.threatLevel || 0}%`}
-              icon="shield"
-              status={status?.status || 'healthy'}
-            />
-            <StatCard
-              title="Critical Alerts"
-              value={criticalAlerts}
-              icon="activity"
-              status={criticalAlerts > 0 ? 'critical' : 'healthy'}
-            />
-            <StatCard
-              title="Active Sessions"
-              value={status?.activeSessions || 0}
-              icon="users"
-            />
-            <StatCard
-              title="Failed Logins"
-              value={status?.failedLoginAttempts || 0}
-              icon="network"
-              status={status?.failedLoginAttempts > 5 ? 'warning' : 'healthy'}
-            />
+            <div className="stat-simple">
+              <h3>Total Items</h3>
+              <p className="stat-value">{items.length}</p>
+            </div>
+            <div className="stat-simple">
+              <h3>Active</h3>
+              <p className="stat-value">0</p>
+            </div>
+            <div className="stat-simple">
+              <h3>Pending</h3>
+              <p className="stat-value">0</p>
+            </div>
+            <div className="stat-simple">
+              <h3>Completed</h3>
+              <p className="stat-value">0</p>
+            </div>
           </div>
 
           <div className="dashboard-content">
-            <Card className="alerts-section">
+            <Card className="main-section">
               <div className="section-header">
-                <h2 className="section-title">Recent Alerts</h2>
-                <span className="alert-count">{alerts.length} Total</span>
+                <h2 className="section-title">Recent Activity</h2>
               </div>
-              {alertsLoading ? (
-                <p className="loading">Loading alerts...</p>
-              ) : alerts.length === 0 ? (
-                <p className="empty-state">No alerts</p>
-              ) : (
-                <div className="alerts-list">
-                  {alerts.slice(0, 5).map((alert: any) => (
-                    <AlertCard key={alert.id} alert={alert} />
-                  ))}
-                </div>
-              )}
+              <p className="empty-state">No activity yet</p>
             </Card>
 
             <Card className="quick-actions">
               <h2 className="section-title">Quick Actions</h2>
               <div className="actions-grid">
                 <button className="action-btn">
-                  <span>🔒</span>
-                  Security Scan
+                  <span>➕</span>
+                  Add New
                 </button>
                 <button className="action-btn">
-                  <span>🔍</span>
-                  Network Audit
+                  <span>📋</span>
+                  View List
                 </button>
                 <button className="action-btn">
-                  <span>👥</span>
-                  User Activity
+                  <span>⚙️</span>
+                  Settings
                 </button>
                 <button className="action-btn">
                   <span>📊</span>
-                  Generate Report
+                  Reports
                 </button>
               </div>
             </Card>
           </div>
 
-          <Card className="status-card">
-            <h2 className="section-title">System Status</h2>
-            <div className="status-details">
-              <div className="status-item">
-                <span className="status-label">Overall Status</span>
-                <span className={`status-badge ${status?.status || 'healthy'}`}>
-                  {status?.status?.toUpperCase() || 'HEALTHY'}
-                </span>
+          <Card className="info-card">
+            <h2 className="section-title">Information</h2>
+            <div className="info-details">
+              <div className="info-item">
+                <span className="info-label">Status</span>
+                <span className="info-value">Active</span>
               </div>
-              <div className="status-item">
-                <span className="status-label">Last Scan</span>
-                <span>{status?.lastScan?.toLocaleString() || 'Never'}</span>
+              <div className="info-item">
+                <span className="info-label">Last Updated</span>
+                <span className="info-value">{new Date().toLocaleDateString()}</span>
               </div>
-              <div className="status-item">
-                <span className="status-label">High Alerts</span>
-                <span>{highAlerts}</span>
+              <div className="info-item">
+                <span className="info-label">Version</span>
+                <span className="info-value">0.1.0</span>
               </div>
             </div>
           </Card>
