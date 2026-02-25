@@ -1,0 +1,147 @@
+.alert-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+.alert-card.critical {
+  border-color: #dc2626;
+  background-color: #fee2e2;
+}
+
+.alert-card.high {
+  border-color: #ea580c;
+  background-color: #ffedd5;
+}
+
+.alert-card.medium {
+  border-color: #f59e0b;
+  background-color: #fef3c7;
+}
+
+.alert-card.low {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.alert-card.resolved {
+  opacity: 0.6;
+  border-color: #10b981;
+  background-color: #ecfdf5;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.alert-icon.critical {
+  color: #dc2626;
+}
+
+.alert-icon.high {
+  color: #ea580c;
+}
+
+.alert-icon.medium {
+  color: #f59e0b;
+}
+
+.alert-icon.low {
+  color: #3b82f6;
+}
+
+.alert-title-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.alert-title-section h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.severity {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.severity.critical {
+  background-color: #dc2626;
+}
+
+.severity.high {
+  background-color: #ea580c;
+}
+
+.severity.medium {
+  background-color: #f59e0b;
+}
+
+.severity.low {
+  background-color: #3b82f6;
+}
+
+.alert-description {
+  margin: 0 0 0.75rem 2.5rem;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.alert-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 2.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.resolve-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.resolve-btn:hover {
+  background-color: #2563eb;
+}
+
+.resolved-badge {
+  padding: 0.5rem 1rem;
+  background-color: #10b981;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
