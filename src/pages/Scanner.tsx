@@ -34,6 +34,7 @@ interface ScanReport {
     evidence?: string;
     owasp?: string;
     exploit?: string;
+    payloads?: string[];
   }>;
   stages: Array<{
     stage: number;
@@ -46,6 +47,23 @@ interface ScanReport {
     exploit?: string;
     timeToExploit?: string;
   }>;
+  zeroDaySignals?: {
+    enabled: boolean;
+    summary: {
+      totalRoutes: number;
+      anomalyCount: number;
+      severity: string;
+    };
+    recentAnomalies: Array<{
+      type: string;
+      detail: string;
+      score: number;
+      timestamp: string;
+      route: string;
+      status: number;
+      durationMs: number;
+    }>;
+  };
   aiSummary?: {
     summary: string;
     generatedBy: string;
@@ -544,6 +562,50 @@ export default function ScannerPage() {
             </div>
           )}
 
+          {/* Zero-Day Signals */}
+          {report.zeroDaySignals?.enabled && (
+            <div className="surface-card p-6 space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                Zero-Day Signal Summary
+              </h3>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="surface-card p-3">
+                  <p className="text-muted-foreground">Routes Observed</p>
+                  <p className="text-lg font-bold">{report.zeroDaySignals.summary.totalRoutes}</p>
+                </div>
+                <div className="surface-card p-3">
+                  <p className="text-muted-foreground">Anomalies</p>
+                  <p className="text-lg font-bold">{report.zeroDaySignals.summary.anomalyCount}</p>
+                </div>
+                <div className="surface-card p-3">
+                  <p className="text-muted-foreground">Severity</p>
+                  <p className="text-lg font-bold">{report.zeroDaySignals.summary.severity}</p>
+                </div>
+              </div>
+              {report.zeroDaySignals.recentAnomalies.length > 0 ? (
+                <div className="space-y-2 text-xs">
+                  {report.zeroDaySignals.recentAnomalies.map((anomaly, idx) => (
+                    <div key={`anomaly-${idx}`} className="surface-card p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-amber-700">{anomaly.type}</p>
+                        <span className="text-muted-foreground">Score {anomaly.score}</span>
+                      </div>
+                      <p className="text-muted-foreground mt-1">{anomaly.detail}</p>
+                      <p className="text-muted-foreground mt-1">
+                        {anomaly.route} • {anomaly.status} • {Math.round(anomaly.durationMs)}ms
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  No anomalies detected in the recent traffic window.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Findings */}
           {report.findings.length > 0 && (
             <div className="surface-card p-6 space-y-4">
@@ -585,6 +647,21 @@ export default function ScannerPage() {
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Exploit:</span> {finding.exploit}
                         </p>
+                      )}
+                      {finding.payloads && finding.payloads.length > 0 && (
+                        <div className="text-muted-foreground">
+                          <p className="font-semibold">Payloads:</p>
+                          <div className="mt-1 flex flex-wrap gap-2">
+                            {finding.payloads.map((payload, payloadIdx) => (
+                              <span
+                                key={`${idx}-payload-${payloadIdx}`}
+                                className="px-2 py-1 rounded bg-muted text-[10px] font-mono"
+                              >
+                                {payload}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -48,7 +48,8 @@ const mockVulnerabilities = {
       line: 54,
       fix: 'Use parameterized queries or prepared statements',
       owasp: 'A03 - Injection',
-      exploit: "Attacker sends ' OR 1=1-- to bypass authentication"
+      exploit: "Attacker sends ' OR 1=1-- to bypass authentication",
+      payloads: ["' OR 1=1--", "' UNION SELECT NULL--", "' AND SLEEP(2)--"]
     },
     {
       type: 'Command Injection',
@@ -59,7 +60,8 @@ const mockVulnerabilities = {
       line: 28,
       fix: 'Use safe libraries like child_process with array args',
       owasp: 'A03 - Injection',
-      exploit: 'Attacker executes arbitrary system commands'
+      exploit: 'Attacker executes arbitrary system commands',
+      payloads: ['; id', '&& whoami', '| cat /etc/passwd']
     },
     {
       type: 'XSS Vulnerability',
@@ -70,7 +72,8 @@ const mockVulnerabilities = {
       line: 92,
       fix: 'Use textContent or sanitize HTML with DOMPurify',
       owasp: 'A03 - Injection',
-      exploit: 'Attacker steals session cookies via <script>alert()</script>'
+      exploit: 'Attacker steals session cookies via <script>alert()</script>',
+      payloads: ["<img src=x onerror=alert('xss')>", '<svg/onload=alert(1)>']
     }
   ],
   
@@ -148,6 +151,36 @@ const mockVulnerabilities = {
       owasp: 'A02 - Cryptographic Failures',
       exploit: 'Attacker predicts session/reset tokens'
     }
+  ],
+
+  logic: [
+    {
+      type: 'IDOR + Logic Flaw',
+      severity: 'High',
+      issue: 'Object access without authorization check',
+      evidence: 'GET /api/accounts/:id with trusted x-user-id',
+      file: 'routes/accounts.js',
+      line: 21,
+      fix: 'Verify ownership server-side and avoid trusting client headers',
+      owasp: 'A01 - Broken Access Control',
+      exploit: 'Attacker reads another user account by changing ID',
+      payloads: ['GET /api/accounts/1002', 'x-user-id: u-999']
+    }
+  ],
+
+  redos: [
+    {
+      type: 'Regex ReDoS',
+      severity: 'High',
+      issue: 'Catastrophic backtracking on user input',
+      evidence: 'const re = /^(a+)+$/',
+      file: 'search.js',
+      line: 33,
+      fix: 'Use safe regex, timeouts, or linear-time validation',
+      owasp: 'A05 - Security Misconfiguration',
+      exploit: 'Attacker sends long strings to spike CPU usage',
+      payloads: ['a'.repeat(50000) + '!', 'aaaaa!']
+    }
   ]
 };
 
@@ -163,8 +196,10 @@ function generateMockScan(target = 'example.com', uploadedCode = null) {
   
   // For code uploads, include injection vulns
   if (uploadedCode) {
-    findings.push(...mockVulnerabilities.injections.slice(0, 2));
+    findings.push(...mockVulnerabilities.injections.slice(0, 3));
     findings.push(...mockVulnerabilities.crypto.slice(0, 1));
+    findings.push(...mockVulnerabilities.logic.slice(0, 1));
+    findings.push(...mockVulnerabilities.redos.slice(0, 1));
   } else {
     // For URL scans, include web-based issues
     findings.push(...mockVulnerabilities.headers.slice(0, 2));
@@ -184,7 +219,8 @@ function generateMockStages(target, uploadedCode) {
     stages.push(
       { stage: 1, name: "Secret Scanning", status: "complete", found: 3 },
       { stage: 2, name: "Vulnerability Patterns", status: "complete", found: 2 },
-      { stage: 3, name: "Cryptographic Analysis", status: "complete", found: 1 }
+      { stage: 3, name: "Cryptographic Analysis", status: "complete", found: 1 },
+      { stage: 4, name: "Payload Probes (Simulated)", status: "complete", found: 2 }
     );
   } else {
     stages.push(

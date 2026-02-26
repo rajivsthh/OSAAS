@@ -5,7 +5,9 @@ const multer = require('multer')
 const cors = require('cors')
 const { runFullScan } = require('./scanner/index')
 const { saveScanHistory, getScanHistory, getDashboardStats } = require('./utils/historyManager')
+const { getSummary, getRecentAnomalies } = require('./utils/trafficAnomalyStore')
 const { verifyFirebaseToken } = require('./middleware/auth')
+const { trafficAnomalyMiddleware } = require('./middleware/trafficAnomaly')
 
 const app = express()
 const upload = multer({ storage: multer.memoryStorage() })
@@ -42,6 +44,7 @@ app.use(cors({
   credentials: true
 }))
 app.use(express.json())
+app.use(trafficAnomalyMiddleware)
 
 // Add request logging
 app.use((req, res, next) => {
@@ -75,6 +78,13 @@ app.post('/api/scan', verifyFirebaseToken, upload.single('file'), async (req, re
     // Run full scan
     const report = await runFullScan(target, uploadedCode, filename)
 
+    // Attach zero-day style anomaly signals from live traffic
+    report.zeroDaySignals = {
+      enabled: true,
+      summary: getSummary(),
+      recentAnomalies: getRecentAnomalies(8)
+    }
+
     // Add user info to report
     report.userId = req.user?.uid || 'anonymous'
     report.userEmail = req.user?.email || 'anonymous@example.com'
@@ -95,6 +105,15 @@ app.post('/api/scan', verifyFirebaseToken, upload.single('file'), async (req, re
       error: error.message
     })
   }
+})
+
+// Zero-day anomaly summary
+app.get('/api/zero-day/summary', verifyFirebaseToken, (req, res) => {
+  res.json({
+    success: true,
+    summary: getSummary(),
+    recentAnomalies: getRecentAnomalies(10)
+  })
 })
 
 // Workspace timer endpoint
