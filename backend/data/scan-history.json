@@ -1,0 +1,32 @@
+[
+  {
+    "id": "scan_1772088802129_b40x82x36",
+    "target": "test-vulnerable.js",
+    "scanTime": "2026-02-26T06:53:22.129Z",
+    "summary": {
+      "total": 7,
+      "critical": 3,
+      "high": 2,
+      "medium": 2,
+      "low": 0,
+      "riskScore": 100,
+      "riskLevel": "CRITICAL"
+    },
+    "hasAISummary": true
+  },
+  {
+    "id": "scan_1772088676067_3loilxvno",
+    "target": "route.ts",
+    "scanTime": "2026-02-26T06:51:16.067Z",
+    "summary": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 0,
+      "riskLevel": "LOW"
+    },
+    "hasAISummary": true
+  }
+]
