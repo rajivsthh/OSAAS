@@ -1,5 +1,28 @@
 [
   {
+    "id": "scan_1772140020267_ip3xzk3n4",
+    "target": "test-vulnerable-advanced.ts",
+    "scanTime": "2026-02-26T21:07:00.267Z",
+    "summary": {
+      "total": 9,
+      "critical": 5,
+      "high": 4,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 100,
+      "riskLevel": "CRITICAL",
+      "avgCVSS": "8.9",
+      "priorityBreakdown": {
+        "p1": 5,
+        "p2": 4,
+        "p3": 0,
+        "p4": 0,
+        "p5": 0
+      }
+    },
+    "hasAISummary": true
+  },
+  {
     "id": "scan_1772139423832_kqb2hhczg",
     "target": "test-vulnerable-logic.ts",
     "scanTime": "2026-02-26T20:57:03.832Z",
