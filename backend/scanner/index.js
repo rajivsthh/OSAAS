@@ -6,6 +6,12 @@ const { scanDirectories } = require('../scanners/directoryScanner')
 const { checkCVE, detectTechnologies } = require('../scanners/cveScanner')
 const { checkRateLimit } = require('../scanners/rateLimitScanner')
 const { generateAIReport } = require('../ai/reportGenerator')
+const { 
+  enhanceFinding, 
+  sortByPriority, 
+  groupByCategory,
+  calculateCVSS 
+} = require('../utils/vulnerabilityRanker')
 
 async function runFullScan(target, uploadedCode = null, filename = "") {
   console.log(`\n🔍 BountyAI scanning: ${target || 'uploaded code'}\n`)
@@ -70,26 +76,46 @@ async function runFullScan(target, uploadedCode = null, filename = "") {
 }
 
 async function generateReport(target, findings, stages, filename = "") {
-  const critical = findings.filter(f => f.severity === "Critical")
-  const high = findings.filter(f => f.severity === "High")
-  const medium = findings.filter(f => f.severity === "Medium")
-  const low = findings.filter(f => f.severity === "Low")
+  // Enhance all findings with Nikto-style ranking
+  const enhancedFindings = findings.map(f => enhanceFinding(f));
+  
+  // Sort by priority
+  const sortedFindings = sortByPriority(enhancedFindings);
+  
+  // Group by category for better organization
+  const categoryGroups = groupByCategory(sortedFindings);
+  
+  // Calculate severity counts
+  const critical = sortedFindings.filter(f => f.severity === "Critical")
+  const high = sortedFindings.filter(f => f.severity === "High")
+  const medium = sortedFindings.filter(f => f.severity === "Medium")
+  const low = sortedFindings.filter(f => f.severity === "Low")
 
-  // Calculate risk score
+  // Calculate risk score (weighted by both severity and CVSS)
   let score = 0
   critical.forEach(() => score += 25)
   high.forEach(() => score += 15)
   medium.forEach(() => score += 8)
   low.forEach(() => score += 3)
   const riskScore = Math.min(score, 100)
+  
+  // Calculate average CVSS score
+  const avgCVSS = sortedFindings.length > 0
+    ? (sortedFindings.reduce((sum, f) => sum + parseFloat(f.cvss || 0), 0) / sortedFindings.length).toFixed(1)
+    : 0.0;
 
   const baseReport = {
     id: generateReportId(),
     target: target || filename,
     scanTime: new Date().toISOString(),
+    scanner: {
+      name: 'Apricity Security Scanner',
+      version: '1.0.0',
+      engine: 'Nikto-style v3'
+    },
     stages,
     summary: {
-      total: findings.length,
+      total: sortedFindings.length,
       critical: critical.length,
       high: high.length,
       medium: medium.length,
@@ -97,15 +123,29 @@ async function generateReport(target, findings, stages, filename = "") {
       riskScore,
       riskLevel: riskScore >= 75 ? "CRITICAL" :
                  riskScore >= 50 ? "HIGH" :
-                 riskScore >= 25 ? "MEDIUM" : "LOW"
+                 riskScore >= 25 ? "MEDIUM" : "LOW",
+      avgCVSS, // Average CVSS score across all findings
+      priorityBreakdown: {
+        p1: sortedFindings.filter(f => f.priority === 1).length,
+        p2: sortedFindings.filter(f => f.priority === 2).length,
+        p3: sortedFindings.filter(f => f.priority === 3).length,
+        p4: sortedFindings.filter(f => f.priority === 4).length,
+        p5: sortedFindings.filter(f => f.priority === 5).length
+      }
     },
-    findings,
-    // Attacker's easiest path
-    attackPath: critical.concat(high).slice(0, 3).map(f => ({
-      step: f.issue,
-      exploit: f.exploit,
-      timeToExploit: f.severity === "Critical" ? "< 5 mins" : "< 30 mins"
-    }))
+    findings: sortedFindings,
+    categories: categoryGroups, // Grouped by category
+    // Attacker's easiest path (Priority 1 & 2 only)
+    attackPath: sortedFindings
+      .filter(f => f.priority <= 2)
+      .slice(0, 3)
+      .map(f => ({
+        step: f.issue,
+        exploit: f.exploit,
+        timeToExploit: f.timeToExploit,
+        cvss: f.cvss,
+        priority: f.priority
+      }))
   }
 
   // Generate AI summary
