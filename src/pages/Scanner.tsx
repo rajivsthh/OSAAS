@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import SeverityBadge from "@/components/SeverityBadge";
+import { apiPostFile } from "@/lib/api";
 
-const API_URL = "http://localhost:3001/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 interface ScanReport {
   id: string;
@@ -62,7 +63,7 @@ export default function ScannerPage() {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const response = await fetch(`${API_URL}/health`, { 
+        const response = await fetch(`${API_URL}/api/health`, { 
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         });
@@ -112,17 +113,7 @@ export default function ScannerPage() {
 
       setCurrentStage("Scanning for vulnerabilities...");
 
-      const response = await fetch(`${API_URL}/scan`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Scan failed: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
+      const data = await apiPostFile("/api/scan", formData);
       
       if (data.success) {
         setReport(data.report);
