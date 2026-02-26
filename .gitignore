@@ -1,5 +1,3 @@
-# .gitignore
-
 # Logs
 logs
 *.log
@@ -24,16 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Build outputs
-build/
-out/
-
-# OS
-.DS_Store
-Thumbs.db
