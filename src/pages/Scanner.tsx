@@ -1,9 +1,10 @@
-import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X, Info } from "lucide-react";
+import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X, Info, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 import SeverityBadge from "@/components/SeverityBadge";
 import GitHubConnect from "@/components/GitHubConnect";
 import { apiPostFile } from "@/lib/api";
@@ -138,6 +139,27 @@ export default function ScannerPage() {
   const disconnectGitHub = () => {
     setConnectedRepo(null);
     toast.info("GitHub repository disconnected");
+  };
+
+  const downloadReport = () => {
+    if (!report) return;
+    
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `apricity-report-${timestamp}.json`;
+    
+    const reportData = JSON.stringify(report, null, 2);
+    const blob = new Blob([reportData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success(`Report downloaded as ${filename}`);
   };
 
   const startScan = async () => {
@@ -480,10 +502,21 @@ export default function ScannerPage() {
           {/* Summary */}
           <div className="surface-card p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium flex items-center gap-2 text-severity-low">
-                <CheckCircle className="h-4 w-4" />
-                Scan complete — {report.summary.total} vulnerabilities found
-              </p>
+              <div className="flex items-center gap-3">
+                <p className="text-sm font-medium flex items-center gap-2 text-severity-low">
+                  <CheckCircle className="h-4 w-4" />
+                  Scan complete — {report.summary.total} vulnerabilities found
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadReport}
+                  className="gap-2"
+                >
+                  <Download className="h-3 w-3" />
+                  Download
+                </Button>
+              </div>
               <SeverityBadge severity={report.summary.riskLevel} />
             </div>
             
@@ -530,10 +563,10 @@ export default function ScannerPage() {
                   {report.aiSummary.generatedBy}
                 </span>
               </div>
-              <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap text-xs leading-relaxed text-foreground font-sans bg-muted/30 p-4 rounded-lg">
-                  {report.aiSummary.summary}
-                </pre>
+              <div className="prose prose-sm prose-invert max-w-none dark:prose-headings:text-foreground dark:prose-p:text-foreground dark:prose-strong:text-foreground dark:prose-li:text-foreground">
+                <div className="text-sm leading-relaxed bg-muted/30 p-4 rounded-lg">
+                  <ReactMarkdown>{report.aiSummary.summary}</ReactMarkdown>
+                </div>
               </div>
             </div>
           )}
