@@ -11,33 +11,29 @@ const app = express()
 const upload = multer({ storage: multer.memoryStorage() })
 
 // Enable CORS for frontend
-// determine which origins are permitted
+// allowlist can come from env or default to common dev ports; also accept any localhost port in dev
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'http://localhost:8080',
-      'http://127.0.0.1:8080',
-      'http://localhost:8082',
-      'http://localhost:8083', // vite increments when busy
-    ];
+  : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8080', 'http://127.0.0.1:8080'];
 
-// during development allow any origin to simplify testing
-const isDev = process.env.NODE_ENV !== 'production';
-
+// helper that returns true for any localhost with a port when in development
+function isLocalhost(origin) {
+  try {
+    const u = new URL(origin);
+    return (u.hostname === 'localhost' || u.hostname === '127.0.0.1') && !!u.port;
+  } catch { return false; }
+}
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (curl, mobile)
     if (!origin) return callback(null, true);
 
-    // allow any localhost:<port> in development to avoid port conflicts
-    if (process.env.NODE_ENV === 'development' && /^https?:\/\/localhost(:\d+)?$/.test(origin)) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (
+      allowedOrigins.indexOf(origin) !== -1 ||
+      process.env.NODE_ENV === 'development' ||
+      isLocalhost(origin)
+    ) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -80,8 +76,8 @@ app.post('/api/scan', verifyFirebaseToken, upload.single('file'), async (req, re
     const report = await runFullScan(target, uploadedCode, filename)
 
     // Add user info to report
-    report.userId = req.user.uid
-    report.userEmail = req.user.email
+    report.userId = req.user?.uid || 'anonymous'
+    report.userEmail = req.user?.email || 'anonymous@example.com'
 
     // Save to history
     saveScanHistory(report)
@@ -117,7 +113,8 @@ app.get('/api/history', verifyFirebaseToken, (req, res) => {
     const history = getScanHistory(limit)
     
     // Filter history to only this user's scans
-    const userHistory = history.filter(item => item.userId === req.user.uid)
+    const userId = req.user?.uid || 'anonymous'
+    const userHistory = history.filter(item => item.userId === userId)
     
     res.json({
       success: true,
@@ -138,13 +135,14 @@ app.get('/api/dashboard/stats', verifyFirebaseToken, (req, res) => {
     const history = getScanHistory()
     
     // Filter to only this user's scans
-    const userScans = history.filter(item => item.userId === req.user.uid)
+    const userId = req.user?.uid || 'anonymous'
+    const userScans = history.filter(item => item.userId === userId)
     
     const stats = {
       ...allStats,
       userScans: userScans.length,
       lastScan: userScans[0]?.timestamp || null,
-      userEmail: req.user.email
+      userEmail: req.user?.email || 'anonymous@example.com'
     }
     
     res.json({

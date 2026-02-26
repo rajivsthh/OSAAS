@@ -4,8 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Download, FileText, Eye, Calendar, Target, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { apiGet } from "@/lib/api";
 
-const API_URL = "http://localhost:3001/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 interface ScanSummary {
   id: string;
@@ -34,8 +35,7 @@ export default function ReportsPage() {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch(`${API_URL}/history`);
-      const data = await response.json();
+      const data = await apiGet("/api/history");
       if (data.success) {
         setReports(data.history);
       }

@@ -1,32 +1,41 @@
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK if configuration is available.
 // Can use either service account JSON file (local dev) or environment variables (production)
-let credential;
+let auth = null;
+let adminInstance = null;
 
-if (process.env.FIREBASE_PRIVATE_KEY) {
-  // Use environment variables (for deployment)
-  credential = admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-  });
-} else {
-  // Use service account JSON file (for local development)
-  try {
-    const serviceAccount = require('../serviceAccountKey.json');
-    credential = admin.credential.cert(serviceAccount);
-  } catch (error) {
-    console.error('⚠️  Firebase service account not found. Set FIREBASE_* environment variables or add serviceAccountKey.json');
-    process.exit(1);
-  }
+function logMissing() {
+  console.warn('⚠️  Firebase admin SDK not configured; authentication endpoints will behave as if user is unauthenticated.');
 }
 
-admin.initializeApp({ credential });
+try {
+  let credential;
+
+  if (process.env.FIREBASE_PRIVATE_KEY) {
+    // Use environment variables (for deployment)
+    credential = admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    });
+  } else {
+    // Use service account JSON file (for local development)
+    const serviceAccount = require('../serviceAccountKey.json');
+    credential = admin.credential.cert(serviceAccount);
+  }
+
+  admin.initializeApp({ credential });
+  adminInstance = admin;
+  auth = admin.auth();
+} catch (error) {
+  logMissing();
+  // Don't crash; we just leave `auth` null and let middleware handle it.
+}
 
 module.exports = {
-  admin,
-  auth: admin.auth()
+  admin: adminInstance,
+  auth,
   // Note: Firestore and Realtime Database not initialized
-  // Add them if needed: db: admin.firestore(), realtimeDb: admin.database()
+  // Add them if needed: db: adminInstance?.firestore(), realtimeDb: adminInstance?.database()
 };

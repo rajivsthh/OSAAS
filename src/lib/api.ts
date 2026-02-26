@@ -2,6 +2,12 @@ import { auth } from "@/lib/firebase";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+function ensureAuth() {
+  if (!auth) {
+    throw new Error("Firebase auth is not initialized");
+  }
+}
+
 /**
  * Make authenticated API request with Firebase token
  */
@@ -10,8 +16,9 @@ export async function apiCall(
   options: RequestInit = {}
 ): Promise<any> {
   try {
+    ensureAuth();
     // Get the current user's ID token
-    const user = auth.currentUser;
+    const user = auth!.currentUser;
     if (!user) {
       throw new Error("User not authenticated");
     }
@@ -57,7 +64,8 @@ export async function apiPost(endpoint: string, data: any) {
  */
 export async function apiPostFile(endpoint: string, formData: FormData) {
   try {
-    const user = auth.currentUser;
+    ensureAuth();
+    const user = auth!.currentUser;
     if (!user) {
       throw new Error("User not authenticated");
     }
