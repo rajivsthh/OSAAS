@@ -1,6 +1,8 @@
-import { NavLink as RouterNavLink } from "react-router-dom";
-import { Shield } from "lucide-react";
+import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
+import { LogIn, LogOut, Shield } from "lucide-react";
 import SelfDestructTimer from "./SelfDestructTimer";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const links = [
   { label: "Home", to: "/" },
@@ -11,6 +13,14 @@ const links = [
 ];
 
 export default function TopNav() {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background/80 backdrop-blur-md px-6">
       <div className="flex items-center gap-8">
@@ -39,7 +49,22 @@ export default function TopNav() {
         </nav>
       </div>
 
-      <SelfDestructTimer />
+      <div className="flex items-center gap-3">
+        <SelfDestructTimer />
+        {isAuthenticated ? (
+          <Button onClick={handleLogout} size="sm" variant="outline" className="rounded-full">
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </Button>
+        ) : (
+          <Button asChild size="sm" className="rounded-full">
+            <RouterNavLink to="/login">
+              <LogIn className="h-4 w-4" />
+              Sign in
+            </RouterNavLink>
+          </Button>
+        )}
+      </div>
     </header>
   );
 }

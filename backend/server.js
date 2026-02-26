@@ -5,6 +5,7 @@ const multer = require('multer')
 const cors = require('cors')
 const { runFullScan } = require('./scanner/index')
 const { saveScanHistory, getScanHistory, getDashboardStats } = require('./utils/historyManager')
+const { verifyFirebaseToken } = require('./middleware/auth')
 
 const app = express()
 const upload = multer({ storage: multer.memoryStorage() })
@@ -32,7 +33,7 @@ app.get('/api/health', (req, res) => {
 })
 
 // Main scan endpoint
-app.post('/api/scan', upload.single('file'), async (req, res) => {
+app.post('/api/scan', verifyFirebaseToken, upload.single('file'), async (req, res) => {
   try {
     const target = req.body.target || ''
     const uploadedCode = req.file ? req.file.buffer.toString('utf-8') : null
@@ -47,6 +48,10 @@ app.post('/api/scan', upload.single('file'), async (req, res) => {
 
     // Run full scan
     const report = await runFullScan(target, uploadedCode, filename)
+
+    // Add user info to report
+    report.userId = req.user.uid
+    report.userEmail = req.user.email
 
     // Save to history
     saveScanHistory(report)
@@ -76,13 +81,17 @@ app.get('/api/workspace/:id/time', (req, res) => {
 })
 
 // Get scan history
-app.get('/api/history', (req, res) => {
+app.get('/api/history', verifyFirebaseToken, (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20
     const history = getScanHistory(limit)
+    
+    // Filter history to only this user's scans
+    const userHistory = history.filter(item => item.userId === req.user.uid)
+    
     res.json({
       success: true,
-      history
+      history: userHistory
     })
   } catch (error) {
     res.status(500).json({
@@ -93,9 +102,21 @@ app.get('/api/history', (req, res) => {
 })
 
 // Get dashboard stats
-app.get('/api/dashboard/stats', (req, res) => {
+app.get('/api/dashboard/stats', verifyFirebaseToken, (req, res) => {
   try {
-    const stats = getDashboardStats()
+    const allStats = getDashboardStats()
+    const history = getScanHistory()
+    
+    // Filter to only this user's scans
+    const userScans = history.filter(item => item.userId === req.user.uid)
+    
+    const stats = {
+      ...allStats,
+      userScans: userScans.length,
+      lastScan: userScans[0]?.timestamp || null,
+      userEmail: req.user.email
+    }
+    
     res.json({
       success: true,
       stats
