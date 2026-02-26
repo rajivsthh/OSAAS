@@ -12,8 +12,18 @@ const {
   groupByCategory,
   calculateCVSS 
 } = require('../utils/vulnerabilityRanker')
+const { generateMockScan, generateMockStages } = require('./mockScanner')
 
 async function runFullScan(target, uploadedCode = null, filename = "") {
+  const DEMO_MODE = process.env.DEMO_MODE === 'true' || process.env.NODE_ENV === 'demo';
+  
+  if (DEMO_MODE) {
+    console.log(`\n🎭 SANDBOX MODE: Using static demo results\n`)
+    const mockFindings = generateMockScan(target, uploadedCode)
+    const mockStages = generateMockStages(target, uploadedCode)
+    return generateReport(target, mockFindings, mockStages, filename, true)
+  }
+  
   console.log(`\n🔍 BountyAI scanning: ${target || 'uploaded code'}\n`)
   
   const allFindings = []
@@ -72,10 +82,10 @@ async function runFullScan(target, uploadedCode = null, filename = "") {
   // Stage 6: Generate report
   console.log('[6/6] Generating report...')
 
-  return generateReport(target, allFindings, stages, filename)
+  return generateReport(target, allFindings, stages, filename, false)
 }
 
-async function generateReport(target, findings, stages, filename = "") {
+async function generateReport(target, findings, stages, filename = "", isDemoMode = false) {
   // Enhance all findings with Nikto-style ranking
   const enhancedFindings = findings.map(f => enhanceFinding(f));
   
@@ -108,10 +118,13 @@ async function generateReport(target, findings, stages, filename = "") {
     id: generateReportId(),
     target: target || filename,
     scanTime: new Date().toISOString(),
+    demoMode: isDemoMode,
+    demoNotice: isDemoMode ? '🎭 SANDBOX MODE: Results are static demonstrations for platform safety' : null,
     scanner: {
       name: 'Apricity Security Scanner',
       version: '1.0.0',
-      engine: 'Nikto-style v3'
+      engine: 'Nikto-style v3',
+      mode: isDemoMode ? 'SANDBOX (Static Demo)' : 'LIVE'
     },
     stages,
     summary: {

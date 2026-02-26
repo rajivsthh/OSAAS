@@ -1,9 +1,10 @@
+// @ts-nocheck
 // test-vulnerable.ts - Intentionally vulnerable TypeScript for testing
 // WARNING: Contains intentional vulnerabilities for scanner demonstration only
 
-import express from 'express';
-import { exec } from 'child_process';
-import * as crypto from 'crypto';
+const express = require('express');
+const { exec } = require('child_process');
+const crypto = require('crypto');
 
 const app = express();
 
@@ -22,7 +23,7 @@ const dbConnection = {
 };
 
 // CRITICAL: SQL Injection
-app.get('/user/:id', (req: express.Request, res: express.Response) => {
+app.get('/user/:id', (req, res) => {
   const userId = req.params.id;
   // Vulnerable: directly concatenating user input
   const query = `SELECT * FROM users WHERE id = ${userId}`;
@@ -32,14 +33,14 @@ app.get('/user/:id', (req: express.Request, res: express.Response) => {
 });
 
 // HIGH: XSS Vulnerability
-app.get('/profile', (req: express.Request, res: express.Response) => {
+app.get('/profile', (req, res) => {
   const userName = req.query.name;
   // Vulnerable: directly rendering user input
   res.send(`<h1>Welcome ${userName}</h1>`);
 });
 
 // CRITICAL: Command Injection
-app.post('/ping', (req: express.Request, res: express.Response) => {
+app.post('/ping', (req, res) => {
   const host = req.body.target;
   // Vulnerable: passing user input to system commands
   exec(`ping -c 4 ${host}`, (error, stdout) => {
@@ -48,24 +49,24 @@ app.post('/ping', (req: express.Request, res: express.Response) => {
 });
 
 // HIGH: Weak Cryptography (MD5)
-function hashPassword(password: string): string {
+function hashPassword(password) {
   return crypto.createHash('md5').update(password).digest('hex');
 }
 
 // MEDIUM: Insecure Random
-function generateToken(): string {
+function generateToken() {
   return Math.random().toString(36).substring(2);
 }
 
 // MEDIUM: Logging Sensitive Data
-app.post('/login', (req: express.Request, res: express.Response) => {
+app.post('/login', (req, res) => {
   const { email, password } = req.body;
   console.log(`User login: ${email}, Password: ${password}`);
   // authenticate(email, password);
 });
 
 // CRITICAL: EVAL Injection
-app.post('/calculate', (req: express.Request, res: express.Response) => {
+app.post('/calculate', (req, res) => {
   const expression = req.body.expr;
   // Vulnerable: using eval with user input
   const result = eval(expression);
@@ -73,8 +74,8 @@ app.post('/calculate', (req: express.Request, res: express.Response) => {
 });
 
 // HIGH: Path Traversal
-app.get('/file', (req: express.Request, res: express.Response) => {
-  const filePath = req.query.path as string;
+app.get('/file', (req, res) => {
+  const filePath = req.query.path;
   // Vulnerable: no path validation
   // fs.readFile(filePath, 'utf8', (err, data) => {
   //   res.send(data);
@@ -82,7 +83,7 @@ app.get('/file', (req: express.Request, res: express.Response) => {
 });
 
 // HIGH: Prototype Pollution
-app.post('/merge', (req: express.Request, res: express.Response) => {
+app.post('/merge', (req, res) => {
   const obj = {};
   // Vulnerable: Object.assign with user input
   Object.assign(obj, req.body);
@@ -93,10 +94,10 @@ app.post('/merge', (req: express.Request, res: express.Response) => {
 app.use(require('cors')());
 
 // HIGH: Missing Authentication
-app.get('/admin', (req: express.Request, res: express.Response) => {
+app.get('/admin', (req, res) => {
   // No authentication check!
   res.json({ admin: 'Panel' });
 });
 
 // Export
-export default app;
+module.exports = app;

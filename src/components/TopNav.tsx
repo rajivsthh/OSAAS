@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { LogIn, LogOut, Shield, Menu } from "lucide-react";
 import SelfDestructTimer from "./SelfDestructTimer";
@@ -18,6 +18,26 @@ export default function TopNav() {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [timerActive, setTimerActive] = useState(false);
+
+  // Listen for report generation to activate timer
+  useEffect(() => {
+    const handleReportGenerated = () => {
+      setTimerActive(true);
+    };
+
+    const handleCodeRemoved = () => {
+      setTimerActive(false);
+    };
+
+    window.addEventListener("scanReportGenerated", handleReportGenerated);
+    window.addEventListener("codeRemovedFromServer", handleCodeRemoved);
+
+    return () => {
+      window.removeEventListener("scanReportGenerated", handleReportGenerated);
+      window.removeEventListener("codeRemovedFromServer", handleCodeRemoved);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -108,7 +128,7 @@ export default function TopNav() {
       </div>
 
       <div className="flex items-center gap-3">
-        <SelfDestructTimer />
+        <SelfDestructTimer isActive={timerActive} />
         {isAuthenticated ? (
           <Button onClick={handleLogout} size="sm" variant="outline" className="rounded-full">
             <LogOut className="h-4 w-4" />

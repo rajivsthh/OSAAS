@@ -1,9 +1,10 @@
-import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff } from "lucide-react";
+import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import SeverityBadge from "@/components/SeverityBadge";
+import GitHubConnect from "@/components/GitHubConnect";
 import { apiPostFile } from "@/lib/api";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -12,6 +13,8 @@ interface ScanReport {
   id: string;
   target: string;
   scanTime: string;
+  demoMode?: boolean;
+  demoNotice?: string;
   summary: {
     total: number;
     critical: number;
@@ -57,6 +60,9 @@ export default function ScannerPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentStage, setCurrentStage] = useState("");
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+  const [codeRemovedFromServer, setCodeRemovedFromServer] = useState(false);
+  const [gitHubModalOpen, setGitHubModalOpen] = useState(false);
+  const [connectedRepo, setConnectedRepo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check backend health on mount
@@ -79,17 +85,45 @@ export default function ScannerPage() {
     checkBackend();
   }, []);
 
+  // Listen for code removal from server notification
+  useEffect(() => {
+    const handleCodeRemoved = (event: CustomEvent) => {
+      if (event.detail.action === "codeRemoved") {
+        setSelectedFile(null);
+        setTargetUrl("");
+        setCodeRemovedFromServer(true);
+        toast.info("✔️ Your uploaded code has been securely removed from the cloud");
+      }
+    };
+
+    window.addEventListener("codeRemovedFromServer", handleCodeRemoved as EventListener);
+    return () => window.removeEventListener("codeRemovedFromServer", handleCodeRemoved as EventListener);
+  }, []);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      setConnectedRepo(null); // Clear GitHub repo if file is selected
       toast.success(`File selected: ${file.name}`);
     }
   };
 
+  const handleGitHubConnect = (repoUrl: string) => {
+    setConnectedRepo(repoUrl);
+    setSelectedFile(null); // Clear file upload if GitHub repo is connected
+    setTargetUrl(""); // Clear URL field
+    toast.success(`GitHub repository connected: ${repoUrl}`);
+  };
+
+  const disconnectGitHub = () => {
+    setConnectedRepo(null);
+    toast.info("GitHub repository disconnected");
+  };
+
   const startScan = async () => {
-    if (!targetUrl && !selectedFile) {
-      toast.error("Please provide a target URL or upload a file");
+    if (!targetUrl && !selectedFile && !connectedRepo) {
+      toast.error("Please provide a target URL, upload a file, or connect a GitHub repository");
       return;
     }
 
@@ -100,6 +134,7 @@ export default function ScannerPage() {
 
     setScanning(true);
     setReport(null);
+    setCodeRemovedFromServer(false);
     setCurrentStage("Initializing scan...");
 
     try {
@@ -110,6 +145,9 @@ export default function ScannerPage() {
       if (selectedFile) {
         formData.append("file", selectedFile);
       }
+      if (connectedRepo) {
+        formData.append("githubRepo", connectedRepo);
+      }
 
       setCurrentStage("Scanning for vulnerabilities...");
 
@@ -117,6 +155,11 @@ export default function ScannerPage() {
       
       if (data.success) {
         setReport(data.report);
+        
+        // Dispatch event to activate self-destruct timer in navbar
+        const event = new CustomEvent("scanReportGenerated");
+        window.dispatchEvent(event);
+        
         toast.success(`Scan complete! Found ${data.report.summary.total} issues`);
       } else {
         throw new Error(data.error || "Scan failed");
@@ -139,17 +182,40 @@ export default function ScannerPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-16 px-6 space-y-10">
-      <div>
-        <h1 className="text-2xl font-bold">Security Scanner</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Scan URLs for vulnerabilities or upload source code for analysis
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50/40 via-transparent to-amber-50/40 dark:from-amber-950/10 dark:via-transparent dark:to-amber-950/10">
+      <div className="max-w-4xl mx-auto py-16 px-6 space-y-10">
+        {/* Sandbox Environment Header */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 w-fit">
+            <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400 animate-pulse" />
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-widest">Sandbox Environment</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Security Scanner</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Safe vulnerability testing in an isolated sandbox environment
+            </p>
+          </div>
+        </div>
+
+        {/* Sandbox Info Card */}
+        <div className="p-5 rounded-lg border-2 border-dashed border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 backdrop-blur-sm">
+          <div className="flex gap-3">
+            <div className="flex-shrink-0">
+              <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 animate-pulse" />
+            </div>
+            <div className="text-xs space-y-1 flex-1">
+              <p className="font-semibold text-amber-900 dark:text-amber-100">Running in Sandbox Mode</p>
+              <p className="text-amber-800 dark:text-amber-200">
+                All scans are performed in an isolated environment. No actual files are analyzed or external systems are contacted.
+              </p>
+            </div>
+          </div>
+        </div>
 
       {/* Backend Status Indicator */}
       {backendOnline === false && (
-        <div className="surface-card p-4 border-l-4 border-destructive bg-destructive/5 animate-fade-in">
+        <div className="p-4 rounded-lg border-2 border-destructive/50 bg-destructive/10 animate-fade-in">
           <div className="flex items-start gap-3">
             <WifiOff className="h-5 w-5 text-destructive mt-0.5" />
             <div className="flex-1">
@@ -169,22 +235,23 @@ export default function ScannerPage() {
       )}
 
       {backendOnline === true && (
-        <div className="surface-card p-3 border-l-4 border-green-500 bg-green-500/5 animate-fade-in">
+        <div className="p-3 rounded-lg border-2 border-green-500 bg-green-500/10 animate-fade-in">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
             <p className="text-xs text-muted-foreground">
-              Backend connected • Ready to scan
+              Backend connected • Sandbox environment ready
             </p>
           </div>
         </div>
       )}
 
       {/* Target URL Input */}
-      <div className="surface-card p-6 space-y-4">
+      <div className="p-6 rounded-lg border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 space-y-4">
         <div className="space-y-2">
           <label className="text-sm font-medium flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            Target URL (optional)
+            <Globe className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <span>Sandbox Target URL</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 font-medium">Simulated</span>
           </label>
           <Input
             type="url"
@@ -192,64 +259,156 @@ export default function ScannerPage() {
             value={targetUrl}
             onChange={(e) => setTargetUrl(e.target.value)}
             disabled={scanning}
+            className="bg-white dark:bg-slate-900 border-amber-200 dark:border-amber-800"
           />
           <p className="text-xs text-muted-foreground">
-            Scans headers, directories, SSL, and rate limiting
+            Simulates security checks: headers, directories, SSL, and rate limiting
           </p>
         </div>
       </div>
 
-      {/* Upload zone */}
-      <div className="surface-card border-dashed p-10 flex flex-col items-center gap-5">
-        <div className="h-14 w-14 rounded-xl bg-muted flex items-center justify-center">
-          <Upload className="h-6 w-6 text-muted-foreground" />
+      {/* GitHub Connected Indicator */}
+      {connectedRepo && (
+        <div className="p-4 rounded-lg border-2 border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Github className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-green-700 dark:text-green-300">Connected to GitHub</p>
+                <p className="text-xs text-green-600 dark:text-green-400 truncate">{connectedRepo}</p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={disconnectGitHub}
+              disabled={scanning}
+              className="shrink-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-sm font-medium">
-            {selectedFile ? selectedFile.name : "Upload source code (optional)"}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1 justify-center">
-            <FileCode className="h-3 w-3" /> .py, .js, .ts, .jsx, .tsx, .php, .java
+      )}
+
+      {/* Upload zone - Hidden if GitHub connected */}
+      {!connectedRepo && (
+        <div className="p-10 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 via-transparent to-amber-100/30 dark:from-amber-950/20 dark:via-transparent dark:to-amber-900/20 flex flex-col items-center gap-5 hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
+          <div className="h-14 w-14 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center border-2 border-amber-200 dark:border-amber-800">
+            <Upload className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium">
+              {selectedFile ? selectedFile.name : "Upload source code to sandbox"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1 justify-center">
+              <FileCode className="h-3 w-3" /> Safe • Isolated • No external processing
+            </p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".py,.js,.ts,.jsx,.tsx,.php,.java,.rb,.go,.c,.cpp,.cs,.zip"
+            onChange={handleFileSelect}
+            className="hidden"
+            disabled={scanning || !!connectedRepo}
+          />
+          <div className="flex gap-3 flex-wrap justify-center">
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={scanning || !!connectedRepo}
+            >
+              Select File
+            </Button>
+            <span className="text-xs text-muted-foreground pt-2">or</span>
+            <Button
+              variant="outline"
+              onClick={() => setGitHubModalOpen(true)}
+              disabled={scanning}
+              className="gap-2"
+            >
+              <Github className="h-4 w-4" />
+              Connect GitHub
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground text-center max-w-sm">
+            Choose one method: upload a local file or connect a GitHub repository (exclusive)
           </p>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".py,.js,.ts,.jsx,.tsx,.php,.java,.rb,.go,.c,.cpp,.cs"
-          onChange={handleFileSelect}
-          className="hidden"
-          disabled={scanning}
-        />
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={scanning}
+      )}
+
+      {/* Start Scan Button */}
+      {(selectedFile || connectedRepo || targetUrl) && (
+        <div className="flex justify-center">
+          <Button 
+            onClick={startScan} 
+            disabled={scanning || (!targetUrl && !selectedFile && !connectedRepo)} 
+            className="bg-amber-600 hover:bg-amber-700 text-white gap-2 px-8"
           >
-            Select File
-          </Button>
-          <Button onClick={startScan} disabled={scanning || (!targetUrl && !selectedFile)} className="glow-blue">
             {scanning ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Scanning…
               </>
+            ) : connectedRepo ? (
+              "Start GitHub Scan"
             ) : (
-              "Start Scan"
+              "Start Sandbox Scan"
             )}
           </Button>
         </div>
-      </div>
+      )}
 
       {/* Scanning progress */}
       {scanning && (
-        <div className="surface-card p-6 space-y-3 animate-fade-in">
-          <p className="text-sm font-medium flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-severity-medium animate-pulse" />
-            {currentStage}
-          </p>
-          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full bg-primary rounded-full animate-pulse" style={{ width: "60%" }} />
+        <div className="space-y-4 animate-fade-in">
+          {/* Sandbox Scanning Container */}
+          <div className="p-6 rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 backdrop-blur-sm shadow-lg shadow-amber-500/10">
+            <div className="space-y-4">
+              {/* Scanning Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-amber-400 rounded-full animate-pulse blur-md opacity-50" />
+                    <div className="relative h-3 w-3 rounded-full bg-amber-500 animate-pulse" />
+                  </div>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Scanning in Sandbox…</p>
+                </div>
+                <span className="text-xs px-2 py-1 rounded-full bg-amber-200 dark:bg-amber-800 text-amber-700 dark:text-amber-200 font-medium">SAFE</span>
+              </div>
+
+              {/* Stage Info */}
+              <div className="bg-amber-50/50 dark:bg-amber-950/40 p-3 rounded border border-amber-200 dark:border-amber-800">
+                <p className="text-xs text-amber-700 dark:text-amber-300 font-mono">
+                  <span className="text-amber-500">→</span> {currentStage || "Initializing scan..."}
+                </p>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="space-y-2">
+                <div className="h-2 rounded-full bg-amber-200 dark:bg-amber-900 overflow-hidden border border-amber-300 dark:border-amber-700">
+                  <div className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-pulse" style={{ width: "60%" }} />
+                </div>
+                <p className="text-xs text-amber-700 dark:text-amber-300 text-right font-mono">Isolation Level: 100%</p>
+              </div>
+
+              {/* Sandbox Badges */}
+              <div className="flex flex-wrap gap-2 pt-2">
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                  Protected
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                  Isolated
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                  Safe
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -257,6 +416,38 @@ export default function ScannerPage() {
       {/* Results */}
       {report && (
         <div className="space-y-6 animate-fade-in">
+          {/* Results Container */}
+          <div className="p-6 rounded-lg border-2 border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50/40 via-white dark:from-amber-950/20 dark:via-slate-950 to-amber-100/30 dark:to-amber-900/10 space-y-6">
+            
+          {/* Sandbox Mode Banner */}
+          {report.demoMode && (
+            <div className="p-4 rounded-lg border-2 border-dashed border-amber-400 dark:border-amber-600 bg-amber-100/50 dark:bg-amber-900/30 animate-fade-in">
+              <div className="flex items-start gap-3">
+                <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">🎭 Sandbox Mode - Safe Demonstration</p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
+                    {report.demoNotice || "Results are static demonstrations showing what real vulnerabilities would look like. No actual scanning was performed."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {codeRemovedFromServer && (
+            <div className="p-4 rounded-lg border-2 border-green-400 dark:border-green-600 bg-green-100/50 dark:bg-green-900/30 animate-fade-in">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-green-900 dark:text-green-100">Code Securely Removed</p>
+                  <p className="text-xs text-green-800 dark:text-green-200 mt-1">
+                    Your uploaded code has been automatically removed from the cloud. Report is retained for your records.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Summary */}
           <div className="surface-card p-6 space-y-4">
             <div className="flex items-center justify-between">
@@ -421,8 +612,18 @@ export default function ScannerPage() {
               </div>
             </div>
           )}
+            </div>
         </div>
       )}
+
+      {/* GitHub Connect Modal */}
+      <GitHubConnect
+        isOpen={gitHubModalOpen}
+        onClose={() => setGitHubModalOpen(false)}
+        onConnect={handleGitHubConnect}
+        scanning={scanning}
+      />
+    </div>
     </div>
   );
 }

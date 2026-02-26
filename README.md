@@ -119,6 +119,68 @@ npm run backend
 2. See all past scans with severity breakdowns
 3. Download scan reports as JSON
 
+## 🎭 Sandbox Mode (Demo Environment)
+
+Sandbox Mode allows you to demo the scanner without performing real security scans. Perfect for hackathons, presentations, or safety testing on potentially malicious files.
+
+### What is Sandbox Mode?
+
+When enabled, the scanner returns **pre-defined static vulnerabilities** instead of actually scanning your code/URLs. This means:
+
+✅ **No real network requests** - Won't actually scan external URLs  
+✅ **No file system access** - Won't analyze uploaded files  
+✅ **Safe demonstrations** - Shows realistic vulnerabilities without risk  
+✅ **Instant results** - Static findings return immediately  
+✅ **Visual indicators** - UI clearly shows "SANDBOX MODE" status  
+
+### Enabling Sandbox Mode
+
+1. Open `backend/.env`:
+```bash
+# Set to 'true' for sandbox mode
+DEMO_MODE=true
+```
+
+2. Restart the backend:
+```bash
+npm run backend
+```
+
+### What You'll See in Sandbox Mode
+
+**Scanner Results Include:**
+- 🎭 Prominent "SANDBOX MODE" banner
+- 16 pre-loaded realistic vulnerabilities (secrets, injections, headers, etc.)
+- Professional Nikto-style ranking (CVSS scores, Priority P1-P5)
+- Instant scan completion (no delays)
+
+**Reports Page Shows:**
+- 🎭 "SANDBOX" badge on each demo scan
+- Categorized findings (Sensitive Data, Injection, XSS, Auth, etc.)
+- Risk scores and severity breakdowns
+- Downloadable JSON reports
+
+### Example Sandbox Vulnerabilities
+
+The demo includes:
+- **Secrets**: AWS keys, database passwords, Stripe API keys
+- **Injections**: SQL injection, Command injection, XSS patterns
+- **Headers**: Missing security headers, CORS misconfiguration
+- **Exposed Files**: .git folders, admin panels
+- **Crypto Issues**: MD5 hashing, insecure random functions
+
+### Disabling Sandbox Mode
+
+To perform **real scans** again:
+
+```bash
+# In backend/.env
+DEMO_MODE=false
+
+# Restart backend
+npm run backend
+```
+
 ## 📁 Project Structure
 
 ```

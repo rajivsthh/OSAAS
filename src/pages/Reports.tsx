@@ -1,7 +1,7 @@
 import SeverityBadge from "@/components/SeverityBadge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Download, FileText, Eye, Calendar, Target, AlertCircle } from "lucide-react";
+import { Download, FileText, Eye, Calendar, Target, AlertCircle, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { apiGet } from "@/lib/api";
@@ -12,6 +12,8 @@ interface ScanSummary {
   id: string;
   target: string;
   scanTime: string;
+  demoMode?: boolean;
+  demoNotice?: string;
   summary: {
     total: number;
     critical: number;
@@ -175,7 +177,15 @@ export default function ReportsPage() {
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate">{report.target}</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-sm font-medium truncate">{report.target}</p>
+                  {report.demoMode && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                      <Zap className="h-3 w-3" />
+                      SANDBOX
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
