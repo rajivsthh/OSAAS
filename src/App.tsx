@@ -34,11 +34,11 @@ const AppLayout = () => {
       <main className="flex-1">
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/" element={<Home />} />
           <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-          <Route path="/exploits" element={<ProtectedRoute><Exploits /></ProtectedRoute>} />
+          <Route path="/exploits" element={<Exploits />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

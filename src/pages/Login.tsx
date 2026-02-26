@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRight, Lock, ShieldCheck, Sparkles } from "lucide-react";
 import { type FormEvent, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -13,17 +13,20 @@ import { toast } from "sonner";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authPhase, setAuthPhase] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
 
+  const redirectTo = searchParams.get("redirect") || "/scanner";
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard", { replace: true });
+      navigate(redirectTo, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, redirectTo]);
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
@@ -51,7 +54,7 @@ export default function LoginPage() {
       setAuthPhase("Verifying credentials...");
 
       await new Promise(resolve => setTimeout(resolve, 600));
-      navigate("/dashboard");
+      navigate(redirectTo);
     } catch (error: any) {
       toast.error(error.message || "Google login failed");
       setGoogleLoading(false);
@@ -93,7 +96,7 @@ export default function LoginPage() {
         await signInWithEmailAndPassword(auth!, email, password);
         toast.success("Signed in successfully!");
       }
-      navigate("/dashboard");
+      navigate(redirectTo);
     } catch (error: any) {
       toast.error(error.message || "Authentication failed");
       setEmailLoading(false);

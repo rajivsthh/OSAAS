@@ -1,6 +1,7 @@
-import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X } from "lucide-react";
+import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import SeverityBadge from "@/components/SeverityBadge";
@@ -200,36 +201,37 @@ export default function ScannerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/40 via-transparent to-amber-50/40 dark:from-amber-950/10 dark:via-transparent dark:to-amber-950/10">
-      <div className="max-w-4xl mx-auto py-16 px-6 space-y-10">
-        {/* Sandbox Environment Header */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 w-fit">
-            <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400 animate-pulse" />
-            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-widest">Sandbox Environment</span>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Security Scanner</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Safe vulnerability testing in an isolated sandbox environment
-            </p>
-          </div>
+    <TooltipProvider>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50/40 via-transparent to-slate-50/40 dark:from-slate-950/10 dark:via-transparent dark:to-slate-950/10">
+        {/* Slim Top Banner */}
+        <div className="flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 border-b border-primary/20 text-xs text-primary/70">
+          <div className="h-2 w-2 rounded-full bg-primary/60 animate-pulse" />
+          <span>Sandbox environment active • All scans are isolated and safe</span>
         </div>
 
-        {/* Sandbox Info Card */}
-        <div className="p-5 rounded-lg border-2 border-dashed border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 backdrop-blur-sm">
-          <div className="flex gap-3">
-            <div className="flex-shrink-0">
-              <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 animate-pulse" />
-            </div>
-            <div className="text-xs space-y-1 flex-1">
-              <p className="font-semibold text-amber-900 dark:text-amber-100">Running in Sandbox Mode</p>
-              <p className="text-amber-800 dark:text-amber-200">
-                All scans are performed in an isolated environment. No actual files are analyzed or external systems are contacted.
-              </p>
+        <div className="max-w-4xl mx-auto py-16 px-6 space-y-10">
+          {/* Security Scanner Header */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Security Scanner</h1>
+            <p className="text-sm text-muted-foreground">
+              Instant vulnerability testing in an isolated sandbox environment
+            </p>
+          </div>
+
+          {/* Sandbox Mode Info */}
+          <div className="p-5 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 backdrop-blur-sm">
+            <div className="flex gap-3">
+              <div className="flex-shrink-0">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse mt-1.5" />
+              </div>
+              <div className="text-xs space-y-1 flex-1">
+                <p className="font-semibold text-foreground">Running in Sandbox Mode</p>
+                <p className="text-muted-foreground">
+                  All scans are performed in an isolated environment. No actual files are analyzed or external systems are contacted.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
       {/* Backend Status Indicator */}
       {backendOnline === false && (
@@ -264,12 +266,22 @@ export default function ScannerPage() {
       )}
 
       {/* Target URL Input */}
-      <div className="p-6 rounded-lg border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 space-y-4">
+      <div className="p-6 rounded-lg border-2 border-primary/20 bg-primary/5 space-y-4">
         <div className="space-y-2">
           <label className="text-sm font-medium flex items-center gap-2">
-            <Globe className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <Globe className="h-4 w-4 text-primary/70" />
             <span>Sandbox Target URL</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 font-medium">Simulated</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary/70 font-medium cursor-help flex items-center gap-1">
+                  <Info className="h-3 w-3" />
+                  Simulated
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-xs">
+                <p>No real network requests are made. All checks are simulated in a safe sandbox.</p>
+              </TooltipContent>
+            </Tooltip>
           </label>
           <Input
             type="url"
@@ -277,17 +289,17 @@ export default function ScannerPage() {
             value={targetUrl}
             onChange={(e) => setTargetUrl(e.target.value)}
             disabled={scanning}
-            className="bg-white dark:bg-slate-900 border-amber-200 dark:border-amber-800"
+            className="bg-white dark:bg-slate-900"
           />
           <p className="text-xs text-muted-foreground">
-            Simulates security checks: headers, directories, SSL, and rate limiting
+            Simulates security checks: headers, directories, SSL, and rate limiting (no real requests)
           </p>
         </div>
       </div>
 
       {/* GitHub Connected Indicator */}
       {connectedRepo && (
-        <div className="p-4 rounded-lg border-2 border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20">
+        <div className="p-4 rounded-lg border-2 border-green-300/50 dark:border-green-700/50 bg-green-50/30 dark:bg-green-950/10">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <Github className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
@@ -311,9 +323,9 @@ export default function ScannerPage() {
 
       {/* Upload zone - Hidden if GitHub connected */}
       {!connectedRepo && (
-        <div className="p-10 rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-gradient-to-br from-amber-50/50 via-transparent to-amber-100/30 dark:from-amber-950/20 dark:via-transparent dark:to-amber-900/20 flex flex-col items-center gap-5 hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
-          <div className="h-14 w-14 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center border-2 border-amber-200 dark:border-amber-800">
-            <Upload className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+        <div className="p-10 rounded-lg border-2 border-dashed border-primary/30 dark:border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 dark:from-primary/10 dark:via-transparent dark:to-primary/10 flex flex-col items-center gap-5 hover:border-primary/50 dark:hover:border-primary/40 transition-colors">
+          <div className="h-14 w-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center border-2 border-primary/20 dark:border-primary/30">
+            <Upload className="h-6 w-6 text-primary/70" />
           </div>
           <div className="text-center">
             <p className="text-sm font-medium">
@@ -339,7 +351,6 @@ export default function ScannerPage() {
             >
               Select File
             </Button>
-            <span className="text-xs text-muted-foreground pt-2">or</span>
             <Button
               variant="outline"
               onClick={() => setGitHubModalOpen(true)}
@@ -362,7 +373,7 @@ export default function ScannerPage() {
           <Button 
             onClick={startScan} 
             disabled={scanning || (!targetUrl && !selectedFile && !connectedRepo)} 
-            className="bg-amber-600 hover:bg-amber-700 text-white gap-2 px-8"
+            className="gap-2 px-8"
           >
             {scanning ? (
               <>
@@ -382,46 +393,46 @@ export default function ScannerPage() {
       {scanning && (
         <div className="space-y-4 animate-fade-in">
           {/* Sandbox Scanning Container */}
-          <div className="p-6 rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 backdrop-blur-sm shadow-lg shadow-amber-500/10">
+          <div className="p-6 rounded-lg border-2 border-primary/30 dark:border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 backdrop-blur-sm shadow-lg shadow-primary/5">
             <div className="space-y-4">
               {/* Scanning Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-amber-400 rounded-full animate-pulse blur-md opacity-50" />
-                    <div className="relative h-3 w-3 rounded-full bg-amber-500 animate-pulse" />
+                    <div className="absolute inset-0 bg-primary rounded-full animate-pulse blur-md opacity-30" />
+                    <div className="relative h-3 w-3 rounded-full bg-primary animate-pulse" />
                   </div>
-                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Scanning in Sandbox…</p>
+                  <p className="text-sm font-semibold text-foreground">Scanning in Sandbox…</p>
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-amber-200 dark:bg-amber-800 text-amber-700 dark:text-amber-200 font-medium">SAFE</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-700 dark:text-green-300 font-medium border border-green-300/50">SAFE</span>
               </div>
 
               {/* Stage Info */}
-              <div className="bg-amber-50/50 dark:bg-amber-950/40 p-3 rounded border border-amber-200 dark:border-amber-800">
-                <p className="text-xs text-amber-700 dark:text-amber-300 font-mono">
-                  <span className="text-amber-500">→</span> {currentStage || "Initializing scan..."}
+              <div className="bg-primary/5 dark:bg-primary/10 p-3 rounded border border-primary/20">
+                <p className="text-xs text-primary/70 dark:text-primary/60 font-mono">
+                  <span className="text-primary">→</span> {currentStage || "Initializing scan..."}
                 </p>
               </div>
 
               {/* Progress Bar */}
               <div className="space-y-2">
-                <div className="h-2 rounded-full bg-amber-200 dark:bg-amber-900 overflow-hidden border border-amber-300 dark:border-amber-700">
-                  <div className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-pulse" style={{ width: "60%" }} />
+                <div className="h-2 rounded-full bg-primary/20 overflow-hidden border border-primary/30">
+                  <div className="h-full bg-gradient-to-r from-primary/60 to-primary rounded-full animate-pulse" style={{ width: "60%" }} />
                 </div>
-                <p className="text-xs text-amber-700 dark:text-amber-300 text-right font-mono">Isolation Level: 100%</p>
+                <p className="text-xs text-primary/60 text-right font-mono">Isolation Level: 100%</p>
               </div>
 
               {/* Sandbox Badges */}
               <div className="flex flex-wrap gap-2 pt-2">
-                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-primary/10 dark:bg-primary/15 text-primary/70 dark:text-primary/60 border border-primary/20 dark:border-primary/30">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
                   Protected
                 </span>
-                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-primary/10 dark:bg-primary/15 text-primary/70 dark:text-primary/60 border border-primary/20 dark:border-primary/30">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
                   Isolated
                 </span>
-                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-primary/10 dark:bg-primary/15 text-primary/70 dark:text-primary/60 border border-primary/20 dark:border-primary/30">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
                   Safe
                 </span>
@@ -435,16 +446,16 @@ export default function ScannerPage() {
       {report && (
         <div className="space-y-6 animate-fade-in">
           {/* Results Container */}
-          <div className="p-6 rounded-lg border-2 border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50/40 via-white dark:from-amber-950/20 dark:via-slate-950 to-amber-100/30 dark:to-amber-900/10 space-y-6">
+          <div className="p-6 rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-white dark:from-primary/10 dark:via-slate-950 to-primary/5 dark:to-primary/5 space-y-6">
             
           {/* Sandbox Mode Banner */}
           {report.demoMode && (
-            <div className="p-4 rounded-lg border-2 border-dashed border-amber-400 dark:border-amber-600 bg-amber-100/50 dark:bg-amber-900/30 animate-fade-in">
+            <div className="p-4 rounded-lg border-2 border-dashed border-primary/40 dark:border-primary/30 bg-primary/10 dark:bg-primary/20 animate-fade-in">
               <div className="flex items-start gap-3">
-                <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <Zap className="h-5 w-5 text-primary/70 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">🎭 Sandbox Mode - Safe Demonstration</p>
-                  <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
+                  <p className="text-sm font-semibold text-foreground">🎭 Sandbox Mode - Safe Demonstration</p>
+                  <p className="text-xs text-muted-foreground mt-1">
                     {report.demoNotice || "Results are static demonstrations showing what real vulnerabilities would look like. No actual scanning was performed."}
                   </p>
                 </div>
@@ -566,7 +577,7 @@ export default function ScannerPage() {
           {report.zeroDaySignals?.enabled && (
             <div className="surface-card p-6 space-y-4">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertTriangle className="h-4 w-4 text-destructive" />
                 Zero-Day Signal Summary
               </h3>
               <div className="grid grid-cols-3 gap-3 text-xs">
@@ -588,7 +599,7 @@ export default function ScannerPage() {
                   {report.zeroDaySignals.recentAnomalies.map((anomaly, idx) => (
                     <div key={`anomaly-${idx}`} className="surface-card p-3">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold text-amber-700">{anomaly.type}</p>
+                        <p className="font-semibold text-destructive">{anomaly.type}</p>
                         <span className="text-muted-foreground">Score {anomaly.score}</span>
                       </div>
                       <p className="text-muted-foreground mt-1">{anomaly.detail}</p>
@@ -700,7 +711,8 @@ export default function ScannerPage() {
         onConnect={handleGitHubConnect}
         scanning={scanning}
       />
-    </div>
-    </div>
+        </div>
+      </div>
+    </TooltipProvider>
   );
 }
