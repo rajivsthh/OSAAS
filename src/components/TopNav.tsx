@@ -283,16 +283,23 @@ export default function TopNav() {
                     <Button
                       size="sm"
                       onClick={handlePaymentComingSoon}
-                      className="bg-[#60BB46] hover:bg-[#4ea43c] text-white"
+                      className="bg-[#60BB46] hover:bg-[#4ea43c] text-white px-3 py-2"
                     >
-                      Pay with Esewa
+                      <img
+                        src="https://esewa.com.np/common/images/esewa_logo.png"
+                        alt="Esewa"
+                        className="h-6 w-auto"
+                        onError={(event) => {
+                          (event.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
                     </Button>
                     <Button
                       size="sm"
                       onClick={handlePaymentComingSoon}
-                      className="bg-[#5C2D91] hover:bg-[#4b2375] text-white"
+                      className="bg-[#5C2D91] hover:bg-[#4b2375] text-white px-3 py-2"
                     >
-                      Pay with Khalti
+                      <span className="text-white text-xs font-semibold">Khalti</span>
                     </Button>
                   </div>
                 )}
@@ -329,16 +336,23 @@ export default function TopNav() {
                     <Button
                       size="sm"
                       onClick={handlePaymentComingSoon}
-                      className="bg-[#60BB46] hover:bg-[#4ea43c] text-white"
+                      className="bg-[#60BB46] hover:bg-[#4ea43c] text-white px-3 py-2"
                     >
-                      Pay with Esewa
+                      <img
+                        src="https://esewa.com.np/common/images/esewa_logo.png"
+                        alt="Esewa"
+                        className="h-6 w-auto"
+                        onError={(event) => {
+                          (event.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
                     </Button>
                     <Button
                       size="sm"
                       onClick={handlePaymentComingSoon}
-                      className="bg-[#5C2D91] hover:bg-[#4b2375] text-white"
+                      className="bg-[#5C2D91] hover:bg-[#4b2375] text-white px-3 py-2"
                     >
-                      Pay with Khalti
+                      <span className="text-white text-xs font-semibold">Khalti</span>
                     </Button>
                   </div>
                 )}
