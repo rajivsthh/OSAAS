@@ -1,7 +1,8 @@
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
-import { LogIn, LogOut, Shield } from "lucide-react";
+import { LogIn, LogOut, Shield, Menu } from "lucide-react";
 import SelfDestructTimer from "./SelfDestructTimer";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
 
 const links = [
@@ -15,6 +16,7 @@ const links = [
 export default function TopNav() {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -29,6 +31,7 @@ export default function TopNav() {
           <span className="text-sm font-semibold tracking-tight">Bounty</span>
         </RouterNavLink>
 
+        {/* desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
           {links.map((l) => (
             <RouterNavLink
@@ -47,6 +50,60 @@ export default function TopNav() {
             </RouterNavLink>
           ))}
         </nav>
+
+        {/* mobile menu trigger */}
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger asChild>
+            <button className="md:hidden p-2 rounded-md hover:bg-muted/20">
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Open menu</span>
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <div className="flex flex-col gap-4">
+              {links.map((l) => (
+                <RouterNavLink
+                  key={l.to}
+                  to={l.to}
+                  end={l.to === "/"}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `block px-4 py-2 rounded-md text-base font-medium transition-colors ${
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-muted/50"
+                    }`
+                  }
+                >
+                  {l.label}
+                </RouterNavLink>
+              ))}
+              <div className="mt-4 border-t border-border pt-4">
+                {isAuthenticated ? (
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-4 py-2 rounded-md text-base text-foreground hover:bg-muted/50"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Sign out
+                  </button>
+                ) : (
+                  <RouterNavLink
+                    to="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex w-full items-center gap-2 px-4 py-2 rounded-md text-base text-foreground hover:bg-muted/50"
+                  >
+                    <LogIn className="h-5 w-5" />
+                    Sign in
+                  </RouterNavLink>
+                )}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <div className="flex items-center gap-3">
