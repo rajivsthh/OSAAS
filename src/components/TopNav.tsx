@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { LogIn, LogOut, Shield, Menu } from "lucide-react";
 import SelfDestructTimer from "./SelfDestructTimer";
