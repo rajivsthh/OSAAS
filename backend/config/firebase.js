@@ -26,7 +26,7 @@ admin.initializeApp({ credential });
 
 module.exports = {
   admin,
-  auth: admin.auth(),
-  db: admin.firestore(),
-  realtimeDb: admin.database()
+  auth: admin.auth()
+  // Note: Firestore and Realtime Database not initialized
+  // Add them if needed: db: admin.firestore(), realtimeDb: admin.database()
 };
