@@ -299,7 +299,7 @@ export default function TopNav() {
                       onClick={handlePaymentComingSoon}
                       className="bg-[#5C2D91] hover:bg-[#4b2375] text-white px-3 py-2"
                     >
-                      <span className="text-white text-xs font-semibold">Khalti</span>
+                      <img src="/khalti-logo.svg" alt="Khalti" className="h-5 w-auto object-contain" />
                     </Button>
                   </div>
                 )}
@@ -352,7 +352,7 @@ export default function TopNav() {
                       onClick={handlePaymentComingSoon}
                       className="bg-[#5C2D91] hover:bg-[#4b2375] text-white px-3 py-2"
                     >
-                      <span className="text-white text-xs font-semibold">Khalti</span>
+                      <img src="/khalti-logo.svg" alt="Khalti" className="h-5 w-auto object-contain" />
                     </Button>
                   </div>
                 )}
