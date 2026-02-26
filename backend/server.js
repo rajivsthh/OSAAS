@@ -76,8 +76,8 @@ app.post('/api/scan', verifyFirebaseToken, upload.single('file'), async (req, re
     const report = await runFullScan(target, uploadedCode, filename)
 
     // Add user info to report
-    report.userId = req.user.uid
-    report.userEmail = req.user.email
+    report.userId = req.user?.uid || 'anonymous'
+    report.userEmail = req.user?.email || 'anonymous@example.com'
 
     // Save to history
     saveScanHistory(report)
@@ -113,7 +113,8 @@ app.get('/api/history', verifyFirebaseToken, (req, res) => {
     const history = getScanHistory(limit)
     
     // Filter history to only this user's scans
-    const userHistory = history.filter(item => item.userId === req.user.uid)
+    const userId = req.user?.uid || 'anonymous'
+    const userHistory = history.filter(item => item.userId === userId)
     
     res.json({
       success: true,
@@ -134,13 +135,14 @@ app.get('/api/dashboard/stats', verifyFirebaseToken, (req, res) => {
     const history = getScanHistory()
     
     // Filter to only this user's scans
-    const userScans = history.filter(item => item.userId === req.user.uid)
+    const userId = req.user?.uid || 'anonymous'
+    const userScans = history.filter(item => item.userId === userId)
     
     const stats = {
       ...allStats,
       userScans: userScans.length,
       lastScan: userScans[0]?.timestamp || null,
-      userEmail: req.user.email
+      userEmail: req.user?.email || 'anonymous@example.com'
     }
     
     res.json({

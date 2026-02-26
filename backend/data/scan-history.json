@@ -1,5 +1,20 @@
 [
   {
+    "id": "scan_1772113117262_xqjbchc13",
+    "target": "test-vulnerable.js",
+    "scanTime": "2026-02-26T13:38:37.263Z",
+    "summary": {
+      "total": 7,
+      "critical": 3,
+      "high": 2,
+      "medium": 2,
+      "low": 0,
+      "riskScore": 100,
+      "riskLevel": "CRITICAL"
+    },
+    "hasAISummary": true
+  },
+  {
     "id": "scan_1772107955961_iyt637lq6",
     "target": "test-vulnerable.ts",
     "scanTime": "2026-02-26T12:12:35.961Z",
