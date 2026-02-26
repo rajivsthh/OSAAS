@@ -1,5 +1,134 @@
 [
   {
+    "id": "scan_1772139423832_kqb2hhczg",
+    "target": "test-vulnerable-logic.ts",
+    "scanTime": "2026-02-26T20:57:03.832Z",
+    "summary": {
+      "total": 9,
+      "critical": 5,
+      "high": 4,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 100,
+      "riskLevel": "CRITICAL",
+      "avgCVSS": "8.9",
+      "priorityBreakdown": {
+        "p1": 5,
+        "p2": 4,
+        "p3": 0,
+        "p4": 0,
+        "p5": 0
+      }
+    },
+    "hasAISummary": true
+  },
+  {
+    "id": "scan_1772139368639_hdtai45jk",
+    "target": "test-vulnerable-logic.ts",
+    "scanTime": "2026-02-26T20:56:08.639Z",
+    "summary": {
+      "total": 9,
+      "critical": 5,
+      "high": 4,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 100,
+      "riskLevel": "CRITICAL",
+      "avgCVSS": "8.9",
+      "priorityBreakdown": {
+        "p1": 5,
+        "p2": 4,
+        "p3": 0,
+        "p4": 0,
+        "p5": 0
+      }
+    },
+    "hasAISummary": true
+  },
+  {
+    "id": "scan_1772139066697_144mslzew",
+    "target": "test-vulnerable-advanced.ts",
+    "scanTime": "2026-02-26T20:51:06.697Z",
+    "summary": {
+      "total": 9,
+      "critical": 5,
+      "high": 4,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 100,
+      "riskLevel": "CRITICAL",
+      "avgCVSS": "8.9",
+      "priorityBreakdown": {
+        "p1": 5,
+        "p2": 4,
+        "p3": 0,
+        "p4": 0,
+        "p5": 0
+      }
+    },
+    "hasAISummary": true
+  },
+  {
+    "id": "scan_1772138965479_strtd5ocu",
+    "target": "test-vulnerable-advanced.ts",
+    "scanTime": "2026-02-26T20:49:25.479Z",
+    "summary": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 0,
+      "riskLevel": "LOW"
+    },
+    "hasAISummary": true
+  },
+  {
+    "id": "scan_1772138828926_i94obgmrz",
+    "target": "test-vulnerable-advanced.ts",
+    "scanTime": "2026-02-26T20:47:08.926Z",
+    "summary": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 0,
+      "riskLevel": "LOW"
+    },
+    "hasAISummary": true
+  },
+  {
+    "id": "scan_1772138698890_bqe26zw2w",
+    "target": "test-vulnerable-advanced.ts",
+    "scanTime": "2026-02-26T20:44:58.890Z",
+    "summary": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 0,
+      "riskLevel": "LOW"
+    },
+    "hasAISummary": true
+  },
+  {
+    "id": "scan_1772138572267_2819clqpy",
+    "target": "test-vulnerable-advanced.ts",
+    "scanTime": "2026-02-26T20:42:52.267Z",
+    "summary": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "riskScore": 0,
+      "riskLevel": "LOW"
+    },
+    "hasAISummary": true
+  },
+  {
     "id": "scan_1772137024609_ic7qvtr1k",
     "target": "test-vulnerable.ts",
     "scanTime": "2026-02-26T20:17:04.609Z",
