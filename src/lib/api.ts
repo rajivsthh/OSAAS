@@ -1,6 +1,6 @@
 import { auth } from "@/lib/firebase";
 
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 /**
  * Make authenticated API request with Firebase token
