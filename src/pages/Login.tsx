@@ -5,9 +5,11 @@ import { ArrowRight, Lock, ShieldCheck, Sparkles } from "lucide-react";
 import { type FormEvent, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase";
 import { toast } from "sonner";
+
+// Lazy helpers will be loaded when needed so that a missing/invalid Firebase
+// configuration can't crash the entire login page at import time.
+// We'll also display a message if the API key is not set.
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -26,16 +28,28 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     setAuthPhase("Redirecting to Google...");
-    
+
+    // ensure we have firebase available
+    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY as string | undefined;
+    if (!apiKey || apiKey.startsWith("YOUR_") || apiKey === "") {
+      toast.error("Firebase not configured; cannot perform authentication.");
+      setGoogleLoading(false);
+      setAuthPhase("");
+      return;
+    }
+
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
       setAuthPhase("Authenticating...");
-      
-      const result = await signInWithPopup(auth, googleProvider);
-      
+
+      const { signInWithPopup } = await import("firebase/auth");
+      const { auth, googleProvider } = await import("@/lib/firebase");
+
+      const result = await signInWithPopup(auth!, googleProvider!);
+
       await new Promise(resolve => setTimeout(resolve, 800));
       setAuthPhase("Verifying credentials...");
-      
+
       await new Promise(resolve => setTimeout(resolve, 600));
       navigate("/dashboard");
     } catch (error: any) {
@@ -51,18 +65,32 @@ export default function LoginPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const name = email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
-    
+
+    // guard firebase presence
+    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY as string | undefined;
+    if (!apiKey || apiKey.startsWith("YOUR_") || apiKey === "") {
+      toast.error("Firebase not configured; cannot perform authentication.");
+      return;
+    }
+
     setEmailLoading(true);
-    
+
     try {
+      const {
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        updateProfile,
+      } = await import("firebase/auth");
+      const { auth } = await import("@/lib/firebase");
+
       if (isSignUp) {
         // Create new account
-        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const result = await createUserWithEmailAndPassword(auth!, email, password);
         await updateProfile(result.user, { displayName: name });
         toast.success("Account created successfully!");
       } else {
         // Sign in with existing account
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth!, email, password);
         toast.success("Signed in successfully!");
       }
       navigate("/dashboard");
@@ -72,8 +100,17 @@ export default function LoginPage() {
     }
   };
 
+  const missingKey = !import.meta.env.VITE_FIREBASE_API_KEY ||
+    (import.meta.env.VITE_FIREBASE_API_KEY as string).startsWith("YOUR_");
+
   return (
     <div className="relative min-h-screen bg-[radial-gradient(circle_at_top,#f7f8fb_0%,#f6f3ee_55%,#f7eee0_100%)] text-slate-900">
+      {missingKey && (
+        <div className="absolute top-0 left-0 right-0 bg-yellow-500 text-black text-center py-2 z-20">
+          Firebase is not configured – the login form will not work. Set your
+          environment variables in <code>.env.local</code>.
+        </div>
+      )}
       <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.01)_40%,rgba(251,191,36,0.04)_100%)] pointer-events-none" />
 
       <div className="relative z-10 mx-auto w-full max-w-4xl px-4 sm:px-6 py-12">

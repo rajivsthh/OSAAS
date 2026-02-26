@@ -19,9 +19,17 @@ const queryClient = new QueryClient();
 const AppLayout = () => {
   const location = useLocation();
   const hideNav = location.pathname === "/login";
+  const missingKey = !import.meta.env.VITE_FIREBASE_API_KEY ||
+    (import.meta.env.VITE_FIREBASE_API_KEY as string).startsWith("YOUR_");
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {missingKey && (
+        <div className="bg-yellow-500 text-black text-center py-2">
+          Warning: Firebase not configured. Authentication and API features
+          will be disabled until you set environment variables.
+        </div>
+      )}
       {!hideNav && <TopNav />}
       <main className="flex-1">
         <Routes>
