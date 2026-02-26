@@ -29,7 +29,9 @@ function saveScanHistory(report) {
       target: report.target,
       scanTime: report.scanTime,
       summary: report.summary,
-      hasAISummary: !!report.aiSummary
+      hasAISummary: !!report.aiSummary,
+      userId: report.userId,
+      userEmail: report.userEmail
     };
     
     history.unshift(historyEntry);

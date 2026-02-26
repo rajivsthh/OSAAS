@@ -133,7 +133,7 @@ app.get('/api/history', verifyFirebaseToken, (req, res) => {
     
     // Filter history to only this user's scans
     const userId = req.user?.uid || 'anonymous'
-    const userHistory = history.filter(item => item.userId === userId)
+    const userHistory = history.filter(item => !item.userId || item.userId === userId)
     
     res.json({
       success: true,
@@ -155,7 +155,7 @@ app.get('/api/dashboard/stats', verifyFirebaseToken, (req, res) => {
     
     // Filter to only this user's scans
     const userId = req.user?.uid || 'anonymous'
-    const userScans = history.filter(item => item.userId === userId)
+    const userScans = history.filter(item => !item.userId || item.userId === userId)
     
     const stats = {
       ...allStats,
