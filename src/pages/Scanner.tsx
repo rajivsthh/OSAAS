@@ -1,8 +1,9 @@
-import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X, Info, Download, Sparkles, ChevronDown } from "lucide-react";
+import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X, Info, Download, Sparkles, ChevronDown, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import SeverityBadge from "@/components/SeverityBadge";
@@ -80,6 +81,7 @@ interface FixSuggestion {
 }
 
 export default function ScannerPage() {
+  const navigate = useNavigate();
   const [scanning, setScanning] = useState(false);
   const [report, setReport] = useState<ScanReport | null>(null);
   const [targetUrl, setTargetUrl] = useState("");
@@ -552,12 +554,14 @@ export default function ScannerPage() {
 
           {/* Summary */}
           <div className="surface-card p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-sm font-medium flex items-center gap-2 text-severity-low">
                   <CheckCircle className="h-4 w-4" />
                   Scan complete — {report.summary.total} vulnerabilities found
                 </p>
+              </div>
+              <div className="flex gap-2 flex-wrap">
                 <Button
                   variant="outline"
                   size="sm"
@@ -566,6 +570,15 @@ export default function ScannerPage() {
                 >
                   <Download className="h-3 w-3" />
                   Download
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => navigate("/reports")}
+                  className="gap-2"
+                >
+                  <FileText className="h-3 w-3" />
+                  View in Reports
                 </Button>
               </div>
               <SeverityBadge severity={report.summary.riskLevel} />
