@@ -14,7 +14,93 @@ A modern, professional security scanner built with React + Vite frontend and Nod
 - **Scan Reports & History** - Track and manage all scans
 - **Professional UI** - Clean, minimal interface with Inter typography
 
-## 📋 Prerequisites
+## 🔐 Security Posture
+
+OSAAS is built security-first. Below are the safeguards we use today and the roadmap items we actively track.
+
+### Core Safeguards (Now)
+- **Authentication** - Firebase auth with short-lived tokens and session timeouts
+- **Access Control** - User-specific report filtering (users only see their own scans)
+- **Transport Security** - HTTPS-only deployments (TLS 1.2+)
+- **Ephemeral Analysis** - Scan jobs run in isolated, short-lived environments
+- **Input Validation** - Strict validation for URLs, file uploads, and request payloads
+- **Dependency Hygiene** - Regular dependency audits (npm audit/Snyk)
+
+### Defense in Depth (Recommended)
+- **Rate Limiting** - Per-IP and per-user throttling to prevent abuse
+- **WAF + DDoS Protection** - Cloudflare or AWS Shield fronting public endpoints
+- **Security Headers** - CSP, HSTS, X-Frame-Options, X-Content-Type-Options
+- **Secrets Management** - Environment variables + rotation (Vault/Secrets Manager)
+- **Audit Logging** - Tamper-resistant logs with alerting for anomalies
+
+### Incident Readiness
+- **Monitoring** - Centralized logs + alerting for auth failures, spikes, and anomalies
+- **Backups** - Encrypted backups with tested restore procedures
+- **IR Playbook** - Documented detection, containment, and recovery steps
+
+## � Trust & Transparency Architecture
+
+OSAAS implements blockchain-inspired verification to ensure scan integrity and build trust without central gatekeepers.
+
+### Cryptographic Verification
+Every scan report is **cryptographically signed** using SHA-256 hashing:
+- Each report gets a unique, tamper-proof hash
+- Any modification to the report invalidates the hash
+- Users can verify their scan hasn't been altered
+
+### Immutable Audit Trail
+Scan records are chained together, creating an **append-only history**:
+- Each scan references the hash of the previous scan
+- Creates an unbreakable chain of custody
+- Makes retroactive tampering mathematically infeasible
+
+### Verifiable Certificates
+Every scan generates a **JWT-based certificate** that proves:
+- ✅ Scan was performed by OSAAS
+- ✅ Findings summary and risk score
+- ✅ Timestamp and target verification
+- ✅ Validity period and cryptographic signature
+
+**Use cases:**
+- Show auditors proof of regular security checks
+- Compliance documentation (SOC 2, ISO 27001)
+- Third-party verification without exposing raw data
+
+### Zero Trust Architecture
+OSAAS operates on **"never trust, always verify"** principles:
+- Every API request requires fresh authentication
+- Session tokens expire after 30 minutes
+- User isolation (scans are never shared between accounts)
+- No persistent storage of uploaded code
+- All communication encrypted in transit (TLS 1.3)
+
+### Public Transparency (Optional)
+Organizations can opt into **public transparency logs**:
+- Anonymized scan metadata published to public ledger
+- Proves scans occurred without exposing sensitive data
+- Creates accountability and trust signal
+- GitHub badge integration for open-source projects
+
+**Example badge:**
+```markdown
+[![OSAAS Verified](https://img.shields.io/badge/OSAAS-Verified-brightgreen)](https://osaas.dev)
+```
+
+### Why This Matters
+Traditional security reports can be:
+- ❌ Modified after the fact
+- ❌ Forged or backdated
+- ❌ Difficult to verify authenticity
+
+OSAAS reports are:
+- ✅ Cryptographically provable
+- ✅ Timestamped and immutable
+- ✅ Independently verifiable
+- ✅ Auditor-friendly
+
+> **Trust through transparency, not authority.**
+
+## �📋 Prerequisites
 
 - Node.js 18+
 - npm or bun

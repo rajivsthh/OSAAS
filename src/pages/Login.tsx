@@ -146,14 +146,14 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="flex h-11 w-full items-center justify-center gap-3 border-slate-200 bg-white text-sm text-slate-900 hover:bg-white hover:border-slate-300 transition-colors disabled:opacity-70"
+                className="flex h-11 w-full items-center justify-center gap-3 border-slate-200 bg-white text-sm text-slate-900 hover:bg-white hover:border-slate-300 hover:text-slate-900 transition-colors disabled:opacity-70 disabled:text-slate-700"
                 onClick={handleGoogleLogin}
                 disabled={googleLoading || emailLoading}
               >
                 {googleLoading ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900" />
-                    {authPhase}
+                    <span className="text-slate-700">{authPhase}</span>
                   </>
                 ) : (
                   <>
