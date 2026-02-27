@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
 
-  const redirectTo = searchParams.get("redirect") || "/scanner";
+  const redirectTo = searchParams.get("redirect") || "/";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -126,7 +126,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <h1 className="text-4xl font-extrabold leading-tight text-slate-900">Sign in to Apricity</h1>
+              <h1 className="text-4xl font-extrabold leading-tight text-slate-900">Sign in to OSAAS</h1>
               <p className="mt-3 text-base text-slate-600 max-w-sm">Access your security workspace and reports — ephemeral, encrypted analysis with quick triage.</p>
             </div>
 

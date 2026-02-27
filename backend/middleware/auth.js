@@ -1,5 +1,16 @@
 const { auth } = require('../config/firebase');
 
+function getDevUser(req) {
+  if (process.env.ALLOW_DEV_AUTH !== 'true') return null;
+  const devUserId = req.headers['x-dev-user-id'];
+  if (!devUserId) return null;
+  return {
+    uid: String(devUserId),
+    email: String(req.headers['x-dev-user-email'] || 'dev@example.com'),
+    name: String(req.headers['x-dev-user-name'] || 'DevUser')
+  };
+}
+
 // If auth is null the backend is running without Firebase setup; both verify
 // and optional middleware should allow requests to continue but act as if no
 // user is authenticated.
@@ -13,6 +24,11 @@ const verifyFirebaseToken = async (req, res, next) => {
     const token = req.headers.authorization?.split('Bearer ')[1];
     
     if (!token) {
+      const devUser = getDevUser(req);
+      if (devUser) {
+        req.user = devUser;
+        return next();
+      }
       if (!auth) return next(); // no auth system, let request proceed
       return res.status(401).json({
         success: false,
@@ -59,7 +75,7 @@ const optionalAuth = async (req, res, next) => {
         name: decodedToken.name || decodedToken.email?.split('@')[0]
       };
     } else {
-      req.user = null;
+      req.user = getDevUser(req) || null;
     }
     
     next();

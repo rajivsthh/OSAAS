@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up BountyAI Security Scanner..."
+echo "🚀 Setting up OSAAS - Offensive Security as a Service..."
 echo ""
 
 # Install root dependencies

@@ -145,7 +145,7 @@ export default function ScannerPage() {
     if (!report) return;
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `apricity-report-${timestamp}.json`;
+    const filename = `osaas-report-${timestamp}.json`;
     
     const reportData = JSON.stringify(report, null, 2);
     const blob = new Blob([reportData], { type: 'application/json' });

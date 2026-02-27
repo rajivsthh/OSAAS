@@ -1,4 +1,4 @@
-# Apricity - Security Scanner
+# OSAAS - Offensive Security as a Service
 
 A modern, professional security scanner built with React + Vite frontend and Node.js backend. Detects OWASP Top 10 vulnerabilities, exposed secrets, and security misconfigurations.
 

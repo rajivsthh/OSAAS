@@ -1,5 +1,6 @@
 // server.js
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '.env') })
 const express = require('express')
 const multer = require('multer')
 const cors = require('cors')
@@ -41,7 +42,15 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "x-dev-user-id",
+    "x-dev-user-email",
+    "x-dev-user-name"
+  ]
 }))
 app.use(express.json())
 app.use(trafficAnomalyMiddleware)
@@ -56,7 +65,7 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
-    message: 'BountyAI backend is running',
+    message: 'OSAAS backend is running',
     timestamp: new Date().toISOString()
   })
 })
@@ -86,11 +95,13 @@ app.post('/api/scan', verifyFirebaseToken, upload.single('file'), async (req, re
     }
 
     // Add user info to report
-    report.userId = req.user?.uid || 'anonymous'
-    report.userEmail = req.user?.email || 'anonymous@example.com'
+    report.userId = req.user?.uid || null
+    report.userEmail = req.user?.email || null
 
-    // Save to history
-    saveScanHistory(report)
+    // Save to history only if user is authenticated
+    if (report.userId) {
+      saveScanHistory(report)
+    }
 
     // Return results
     res.json({
@@ -128,12 +139,19 @@ app.get('/api/workspace/:id/time', (req, res) => {
 // Get scan history
 app.get('/api/history', verifyFirebaseToken, (req, res) => {
   try {
+    if (!req.user?.uid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required'
+      })
+    }
+
     const limit = parseInt(req.query.limit) || 20
     const history = getScanHistory(limit)
     
     // Filter history to only this user's scans
-    const userId = req.user?.uid || 'anonymous'
-    const userHistory = history.filter(item => !item.userId || item.userId === userId)
+    const userId = req.user.uid
+    const userHistory = history.filter(item => item.userId === userId)
     
     res.json({
       success: true,
@@ -150,18 +168,25 @@ app.get('/api/history', verifyFirebaseToken, (req, res) => {
 // Get dashboard stats
 app.get('/api/dashboard/stats', verifyFirebaseToken, (req, res) => {
   try {
+    if (!req.user?.uid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required'
+      })
+    }
+
     const allStats = getDashboardStats()
     const history = getScanHistory()
     
     // Filter to only this user's scans
-    const userId = req.user?.uid || 'anonymous'
-    const userScans = history.filter(item => !item.userId || item.userId === userId)
+    const userId = req.user.uid
+    const userScans = history.filter(item => item.userId === userId)
     
     const stats = {
       ...allStats,
       userScans: userScans.length,
       lastScan: userScans[0]?.timestamp || null,
-      userEmail: req.user?.email || 'anonymous@example.com'
+      userEmail: req.user?.email || null
     }
     
     res.json({
@@ -179,7 +204,7 @@ app.get('/api/dashboard/stats', verifyFirebaseToken, (req, res) => {
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 BountyAI backend running on http://localhost:${PORT}`)
+  console.log(`\n🚀 OSAAS backend running on http://localhost:${PORT}`)
   console.log(`📡 API endpoint: http://localhost:${PORT}/api/scan`)
   console.log(`💚 Health check: http://localhost:${PORT}/api/health\n`)
 })

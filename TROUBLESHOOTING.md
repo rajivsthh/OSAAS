@@ -28,7 +28,7 @@ npm start
 
 Wait until you see:
 ```
-🚀 BountyAI backend running on http://localhost:3001
+🚀 OSAAS backend running on http://localhost:3001
 ```
 
 ### Terminal 2 - Frontend:
@@ -48,7 +48,7 @@ Should return:
 ```json
 {
   "status": "ok",
-  "message": "BountyAI backend is running",
+  "message": "OSAAS backend is running",
   "timestamp": "..."
 }
 ```

@@ -1,5 +1,5 @@
 @echo off
-echo Setting up BountyAI Security Scanner...
+echo Setting up OSAAS - Offensive Security as a Service...
 echo.
 
 REM Install root dependencies

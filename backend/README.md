@@ -1,6 +1,6 @@
-# BountyAI Backend
+# OSAAS Backend
 
-Automated vulnerability scanner with OWASP Top 10 detection, secret scanning, and penetration testing capabilities.
+Offensive Security as a Service - Automated vulnerability scanner with OWASP Top 10 detection, secret scanning, and penetration testing capabilities.
 
 ## Features
 

@@ -24,7 +24,7 @@ async function runFullScan(target, uploadedCode = null, filename = "") {
     return generateReport(target, mockFindings, mockStages, filename, true)
   }
   
-  console.log(`\n🔍 BountyAI scanning: ${target || 'uploaded code'}\n`)
+  console.log(`\n🔍 OSAAS scanning: ${target || 'uploaded code'}\n`)
   
   const allFindings = []
   const stages = []

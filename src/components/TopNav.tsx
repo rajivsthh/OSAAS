@@ -79,7 +79,7 @@ export default function TopNav() {
         <div className="flex items-center gap-8">
         <RouterNavLink to="/" className="flex items-center gap-2 text-foreground">
           <Shield className="h-5 w-5 text-primary" />
-          <span className="text-sm font-semibold tracking-tight">Bounty</span>
+          <span className="text-sm font-semibold tracking-tight">OSAAS</span>
         </RouterNavLink>
 
         {/* desktop nav */}

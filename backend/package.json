@@ -1,7 +1,7 @@
 {
-  "name": "bountyai-backend",
+  "name": "osaas-backend",
   "version": "1.0.0",
-  "description": "BountyAI vulnerability scanner backend",
+  "description": "OSAAS - Offensive Security as a Service backend",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
