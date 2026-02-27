@@ -1,4 +1,4 @@
-import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X, Info, Download } from "lucide-react";
+import { Upload, FileCode, CheckCircle, AlertTriangle, Globe, Loader2, WifiOff, Zap, Github, X, Info, Download, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import SeverityBadge from "@/components/SeverityBadge";
 import GitHubConnect from "@/components/GitHubConnect";
-import { apiPostFile } from "@/lib/api";
+import { apiPostFile, apiPost } from "@/lib/api";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -73,6 +73,12 @@ interface ScanReport {
   };
 }
 
+interface FixSuggestion {
+  loading: boolean;
+  expanded: boolean;
+  suggestion: string;
+}
+
 export default function ScannerPage() {
   const [scanning, setScanning] = useState(false);
   const [report, setReport] = useState<ScanReport | null>(null);
@@ -83,6 +89,7 @@ export default function ScannerPage() {
   const [codeRemovedFromServer, setCodeRemovedFromServer] = useState(false);
   const [gitHubModalOpen, setGitHubModalOpen] = useState(false);
   const [connectedRepo, setConnectedRepo] = useState<string | null>(null);
+  const [fixSuggestions, setFixSuggestions] = useState<{ [key: string]: FixSuggestion }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check backend health on mount
@@ -160,6 +167,50 @@ export default function ScannerPage() {
     URL.revokeObjectURL(url);
     
     toast.success(`Report downloaded as ${filename}`);
+  };
+
+  const fetchFixSuggestion = async (findingIdx: number, finding: any) => {
+    const key = `finding-${findingIdx}`;
+    
+    // Toggle expand state if already loaded
+    if (fixSuggestions[key] && !fixSuggestions[key].loading) {
+      setFixSuggestions(prev => ({
+        ...prev,
+        [key]: { ...prev[key], expanded: !prev[key].expanded }
+      }));
+      return;
+    }
+
+    // Fetch suggestion
+    setFixSuggestions(prev => ({
+      ...prev,
+      [key]: { loading: true, expanded: true, suggestion: '' }
+    }));
+
+    try {
+      const data = await apiPost('/api/fix-suggestion', {
+        vulnerability: finding.issue,
+        code: finding.evidence || finding.fix,
+        type: finding.type
+      });
+
+      if (data.success) {
+        setFixSuggestions(prev => ({
+          ...prev,
+          [key]: { loading: false, expanded: true, suggestion: data.suggestion }
+        }));
+        toast.success('AI fix suggestion generated');
+      } else {
+        throw new Error(data.error || 'Failed to generate suggestion');
+      }
+    } catch (error) {
+      console.error('Fix suggestion error:', error);
+      setFixSuggestions(prev => ({
+        ...prev,
+        [key]: { loading: false, expanded: false, suggestion: 'Error: ' + (error as Error).message }
+      }));
+      toast.error('Failed to generate fix suggestion');
+    }
   };
 
   const startScan = async () => {
@@ -708,6 +759,50 @@ export default function ScannerPage() {
                         </div>
                       )}
                     </div>
+
+                    {/* Fix with AI Button */}
+                    <div className="pt-2 border-t border-border/50">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2 text-xs"
+                        onClick={() => fetchFixSuggestion(idx, finding)}
+                        disabled={fixSuggestions[`finding-${idx}`]?.loading}
+                      >
+                        {fixSuggestions[`finding-${idx}`]?.loading ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-3 w-3" />
+                            {fixSuggestions[`finding-${idx}`]?.suggestion ? 'Show Fix' : 'Fix with AI'}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* AI Fix Suggestion Panel */}
+                    {fixSuggestions[`finding-${idx}`]?.suggestion && fixSuggestions[`finding-${idx}`]?.expanded && (
+                      <div className="mt-3 p-3 border-l-4 border-green-500 bg-green-500/5 rounded text-xs space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-green-600">AI Fix Suggestion</span>
+                          <button
+                            onClick={() => setFixSuggestions(prev => ({
+                              ...prev,
+                              [`finding-${idx}`]: { ...prev[`finding-${idx}`], expanded: false }
+                            }))}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <div className="text-muted-foreground whitespace-pre-wrap">
+                          {fixSuggestions[`finding-${idx}`]?.suggestion}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

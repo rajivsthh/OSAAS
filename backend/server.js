@@ -1,6 +1,18 @@
 // server.js
 const path = require('path')
-require('dotenv').config({ path: path.join(__dirname, '.env') })
+const fs = require('fs')
+
+// Load .env file
+const envPath = path.join(__dirname, '.env')
+require('dotenv').config({ path: envPath })
+
+// Log environment setup
+console.log('📋 Environment Setup:')
+console.log('  PORT:', process.env.PORT || 3001)
+console.log('  NODE_ENV:', process.env.NODE_ENV)
+console.log('  GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ NOT FOUND')
+console.log('')
+
 const express = require('express')
 const multer = require('multer')
 const cors = require('cors')
@@ -194,6 +206,91 @@ app.get('/api/dashboard/stats', verifyFirebaseToken, (req, res) => {
       stats
     })
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    })
+  }
+})
+
+// Fix suggestion endpoint with Google Gemini API
+app.post('/api/fix-suggestion', verifyFirebaseToken, async (req, res) => {
+  try {
+    const { vulnerability, code, type } = req.body
+
+    if (!vulnerability || !code) {
+      return res.status(400).json({
+        success: false,
+        error: 'vulnerability and code are required'
+      })
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'Gemini API key not configured'
+      })
+    }
+
+    console.log('📧 Calling Gemini API...')
+
+    // Create abort controller with 30 second timeout
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30000)
+
+    try {
+      // Call Google Gemini API
+      const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `You are a security expert. A vulnerability of type "${type}" has been found:\n\n${vulnerability}\n\nAffected code:\n\`\`\`\n${code}\n\`\`\`\n\nProvide a specific code fix for this vulnerability. Be concise and practical.`
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 500
+          }
+        })
+      })
+
+      clearTimeout(timeout)
+      console.log('✅ Gemini response status:', geminiResponse.status)
+
+      if (!geminiResponse.ok) {
+        const error = await geminiResponse.json()
+        console.error('❌ Gemini API error:', error)
+        return res.status(500).json({
+          success: false,
+          error: 'Gemini error: ' + (error?.error?.message || JSON.stringify(error))
+        })
+      }
+
+      const geminiData = await geminiResponse.json()
+      const suggestion = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to generate suggestion'
+
+      res.json({
+        success: true,
+        suggestion
+      })
+    } catch (fetchError) {
+      clearTimeout(timeout)
+      if (fetchError.name === 'AbortError') {
+        console.error('⏱️ Gemini API timeout')
+        return res.status(500).json({
+          success: false,
+          error: 'Gemini API request timeout (30s)'
+        })
+      }
+      throw fetchError
+    }
+  } catch (error) {
+    console.error('💥 Fix suggestion error:', error.message)
     res.status(500).json({
       success: false,
       error: error.message
