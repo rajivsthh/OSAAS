@@ -8,10 +8,10 @@ const crypto = require('crypto');
 
 const app = express();
 
-// CRITICAL: Exposed API Keys
-const STRIPE_API_KEY = 'sk_test_placeholder';
-const GITHUB_TOKEN = 'ghp_placeholder';
-const AWS_KEY = 'AKIA_PLACEHOLDER';
+// CRITICAL: Exposed API Keys (EXAMPLES ONLY - DO NOT USE REAL KEYS)
+const STRIPE_API_KEY = 'sk_test_placeholder_stripe_key';
+const GITHUB_TOKEN = 'ghp_placeholder_token_example';
+const AWS_KEY = 'AKIA_PLACEHOLDER_PLACEHOLDER_KEYS';
 const jwt_secret = 'my-super-secret-jwt-key-12345';
 
 // CRITICAL: Hardcoded Database Credentials

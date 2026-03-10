@@ -5,9 +5,9 @@ const express = require('express');
 const mysql = require('mysql');
 const app = express();
 
-// CRITICAL: Exposed secrets
-const AWS_ACCESS_KEY = 'AKIA_PLACEHOLDER';
-const stripe_key = 'sk_test_placeholder';
+// CRITICAL: Exposed secrets (EXAMPLE - DO NOT USE REAL KEYS)
+const AWS_ACCESS_KEY = 'AKIA_PLACEHOLDER_PLACEHOLDER_KEYS';
+const stripe_key = 'sk_test_placeholder_stripe_key';
 const password = 'admin123456';
 const jwt_secret = 'my-super-secret-jwt-key-12345';
 
