@@ -129,7 +129,13 @@ cd ..
 1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
 2. Enable **Authentication** with Google and Email/Password providers
 3. Copy your Web app config from Project Settings → Your apps
-4. Create `.env.local` in the root directory:
+4. Copy the frontend env template and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+5. Update `.env.local` with your Firebase config:
 
 ```dotenv
 # Backend API URL
@@ -143,6 +149,10 @@ VITE_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
 VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_SENDER_ID
 VITE_FIREBASE_APP_ID=YOUR_APP_ID
 ```
+
+6. Restrict your Firebase Web API key in Google Cloud:
+  - Application restrictions: **HTTP referrers** (your dev/prod domains)
+  - API restrictions: only APIs required by your Firebase web app
 
 ## 🏃 Running the Application
 
@@ -531,7 +541,7 @@ The `useAuth()` hook provides:
 
 ### Sharing with Teammates (Hackathon Mode)
 
-1. Share the Firebase credentials (web config only):
+1. Share the Firebase web config values securely (never commit them):
 ```
 VITE_FIREBASE_API_KEY
 VITE_FIREBASE_AUTH_DOMAIN
@@ -541,13 +551,12 @@ VITE_FIREBASE_MESSAGING_SENDER_ID
 VITE_FIREBASE_APP_ID
 ```
 
-2. Each teammate clones the repo and adds `.env.local`:
+2. Each teammate clones the repo and creates local env from template:
 ```bash
 git clone https://github.com/Sandbox-3-0/Apricity.git
 cd Apricity
-echo "VITE_API_URL=http://localhost:3001" > .env.local
-echo "VITE_FIREBASE_API_KEY=..." >> .env.local
-# (add remaining Firebase vars)
+cp .env.example .env.local
+# edit .env.local with your project values
 ```
 
 3. Run locally:

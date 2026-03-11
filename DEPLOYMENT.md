@@ -95,6 +95,11 @@
    VITE_FIREBASE_APP_ID=1:584729313277:web:ee2734934293948f8b2394
    ```
 
+   Security notes:
+   - Never commit real keys to the repository or documentation.
+   - Store real values only in Vercel/Render encrypted environment variables.
+   - Restrict `VITE_FIREBASE_API_KEY` in Google Cloud to your domains and required APIs.
+
 5. **Deploy** - Vercel will automatically build and deploy
 
 6. **Update CORS** - Add your Vercel URL to backend's `ALLOWED_ORIGINS` environment variable
