@@ -26,5 +26,6 @@ dist-ssr
 # Sensitive files
 serviceAccountKey.json
 .env
+.env.example
 .env.local
 .env.*.local
