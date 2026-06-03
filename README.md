@@ -2,7 +2,7 @@
 
 A modern, professional security scanner built with React + Vite frontend and Node.js backend. Detects OWASP Top 10 vulnerabilities, exposed secrets, and security misconfigurations.
 
-## 🚀 Features
+## Features
 
 - **Google OAuth & Email Authentication** - Secure Firebase-based login
 - **Secret Detection** - Find exposed API keys, tokens, and credentials
@@ -14,7 +14,7 @@ A modern, professional security scanner built with React + Vite frontend and Nod
 - **Scan Reports & History** - Track and manage all scans
 - **Professional UI** - Clean, minimal interface with Inter typography
 
-## 🔐 Security Posture
+## Security Posture
 
 OSAAS is built security-first. Below are the safeguards we use today and the roadmap items we actively track.
 
@@ -38,7 +38,7 @@ OSAAS is built security-first. Below are the safeguards we use today and the roa
 - **Backups** - Encrypted backups with tested restore procedures
 - **IR Playbook** - Documented detection, containment, and recovery steps
 
-## � Trust & Transparency Architecture
+## Trust & Transparency Architecture
 
 OSAAS implements blockchain-inspired verification to ensure scan integrity and build trust without central gatekeepers.
 
@@ -56,10 +56,10 @@ Scan records are chained together, creating an **append-only history**:
 
 ### Verifiable Certificates
 Every scan generates a **JWT-based certificate** that proves:
-- ✅ Scan was performed by OSAAS
-- ✅ Findings summary and risk score
-- ✅ Timestamp and target verification
-- ✅ Validity period and cryptographic signature
+- Scan was performed by OSAAS
+- Findings summary and risk score
+- Timestamp and target verification
+- Validity period and cryptographic signature
 
 **Use cases:**
 - Show auditors proof of regular security checks
@@ -88,25 +88,25 @@ Organizations can opt into **public transparency logs**:
 
 ### Why This Matters
 Traditional security reports can be:
-- ❌ Modified after the fact
-- ❌ Forged or backdated
-- ❌ Difficult to verify authenticity
+- Modified after the fact
+- Forged or backdated
+- Difficult to verify authenticity
 
 OSAAS reports are:
-- ✅ Cryptographically provable
-- ✅ Timestamped and immutable
-- ✅ Independently verifiable
-- ✅ Auditor-friendly
+- Cryptographically provable
+- Timestamped and immutable
+- Independently verifiable
+- Auditor-friendly
 
 > **Trust through transparency, not authority.**
 
-## �📋 Prerequisites
+## Prerequisites
 
 - Node.js 18+
 - npm or bun
 - Firebase project (for authentication)
 
-## 🛠️ Installation
+## Installation
 
 ### 1. Clone and Install Dependencies
 
@@ -154,7 +154,7 @@ VITE_FIREBASE_APP_ID=YOUR_APP_ID
   - Application restrictions: **HTTP referrers** (your dev/prod domains)
   - API restrictions: only APIs required by your Firebase web app
 
-## 🏃 Running the Application
+## Running the Application
 
 ### Option 1: Run Both Frontend & Backend Together (Recommended)
 
@@ -188,7 +188,7 @@ cd /home/rarch/Documents/Apricity
 npm run backend
 ```
 
-## 🧪 Testing the Scanner
+## Testing the Scanner
 
 ### Authenticate First
 
@@ -215,7 +215,7 @@ npm run backend
 2. See all past scans with severity breakdowns
 3. Download scan reports as JSON
 
-## 🎭 Sandbox Mode (Demo Environment)
+## Sandbox Mode (Demo Environment)
 
 Sandbox Mode allows you to demo the scanner without performing real security scans. Perfect for hackathons, presentations, or safety testing on potentially malicious files.
 
@@ -223,11 +223,11 @@ Sandbox Mode allows you to demo the scanner without performing real security sca
 
 When enabled, the scanner returns **pre-defined static vulnerabilities** instead of actually scanning your code/URLs. This means:
 
-✅ **No real network requests** - Won't actually scan external URLs  
-✅ **No file system access** - Won't analyze uploaded files  
-✅ **Safe demonstrations** - Shows realistic vulnerabilities without risk  
-✅ **Instant results** - Static findings return immediately  
-✅ **Visual indicators** - UI clearly shows "SANDBOX MODE" status  
+**No real network requests** - Won't actually scan external URLs  
+**No file system access** - Won't analyze uploaded files  
+**Safe demonstrations** - Shows realistic vulnerabilities without risk  
+**Instant results** - Static findings return immediately  
+**Visual indicators** - UI clearly shows "SANDBOX MODE" status  
 
 ### Enabling Sandbox Mode
 
@@ -245,13 +245,13 @@ npm run backend
 ### What You'll See in Sandbox Mode
 
 **Scanner Results Include:**
-- 🎭 Prominent "SANDBOX MODE" banner
+- Prominent "SANDBOX MODE" banner
 - 16 pre-loaded realistic vulnerabilities (secrets, injections, headers, etc.)
 - Professional Nikto-style ranking (CVSS scores, Priority P1-P5)
 - Instant scan completion (no delays)
 
 **Reports Page Shows:**
-- 🎭 "SANDBOX" badge on each demo scan
+- "SANDBOX" badge on each demo scan
 - Categorized findings (Sensitive Data, Injection, XSS, Auth, etc.)
 - Risk scores and severity breakdowns
 - Downloadable JSON reports
@@ -277,7 +277,7 @@ DEMO_MODE=false
 npm run backend
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Apricity/
@@ -335,7 +335,7 @@ Apricity/
 └── index.html                   # Entry HTML file
 ```
 
-## 🔌 API Endpoints
+## API Endpoints
 
 All endpoints require Firebase authentication token in the `Authorization: Bearer <token>` header.
 
@@ -411,7 +411,7 @@ Get dashboard statistics
 }
 ```
 
-## 🌐 Deployment
+## Deployment
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment guides:
 
@@ -429,38 +429,38 @@ vercel --prod
 # Push to GitHub, connect repo, auto-deploys
 ```
 
-## 🔒 Security Notice (Important)
+## Security Notice (Important)
 
-⚠️ **This tool is for authorized security testing only.**
+**This tool is for authorized security testing only.**
 
 **Do's:**
-- ✅ Only scan systems you own or have **explicit written permission** to test
-- ✅ Follow **responsible disclosure** practices  
-- ✅ Comply with all applicable **laws and regulations** in your jurisdiction
-- ✅ Report findings to affected organizations securely
-- ✅ Allow reasonable time for fixes (typically 30-90 days)
+- Only scan systems you own or have **explicit written permission** to test
+- Follow **responsible disclosure** practices  
+- Comply with all applicable **laws and regulations** in your jurisdiction
+- Report findings to affected organizations securely
+- Allow reasonable time for fixes (typically 30-90 days)
 
 **Don'ts:**
-- ❌ Do not use for malicious purposes, hacking, or unauthorized access
-- ❌ Do not use for DDoS or performance attacks
-- ❌ Do not bypass authentication or security mechanisms
-- ❌ Do not publicly disclose vulnerabilities before patched
+- Do not use for malicious purposes, hacking, or unauthorized access
+- Do not use for DDoS or performance attacks
+- Do not bypass authentication or security mechanisms
+- Do not publicly disclose vulnerabilities before patched
 
 **If you find vulnerabilities:**
 1. Document them clearly with reproduction steps
 2. Contact the organization's security team
 3. Do not share publicly until they confirm the fix
 
-## 🔒 Security Notice
+## Security Notice
 
-⚠️ **Important:** This tool is for authorized security testing only.
+**Important:** This tool is for authorized security testing only.
 
 - Only scan systems you own or have explicit permission to test
 - Follow responsible disclosure practices
 - Comply with all applicable laws and regulations
 - Do not use for malicious purposes
 
-## 🛠️ Development Scripts
+## Development Scripts
 
 ```bash
 npm run dev              # Start frontend only (port 5173)
@@ -472,7 +472,7 @@ npm run test             # Run tests
 npm run test:watch      # Run tests in watch mode
 ```
 
-## 🔐 Authentication
+## Authentication
 
 The app uses **Firebase Authentication** for secure access:
 
@@ -497,7 +497,7 @@ The `useAuth()` hook provides:
 }
 ```
 
-## 📚 Scanner Capabilities
+## Scanner Capabilities
 
 ### Secret Detection
 - AWS Access Keys & Secrets
@@ -537,7 +537,7 @@ The `useAuth()` hook provides:
 - API documentation
 - Config files (web.config, .htaccess)
 
-## 👥 Team Development
+## Team Development
 
 ### Sharing with Teammates (Hackathon Mode)
 
@@ -567,7 +567,7 @@ npm run start
 
 **Note:** Each teammate must run their own backend locally. For a shared server setup, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please:
 
@@ -577,11 +577,11 @@ We welcome contributions! Please:
 4. Push to the branch (`git push origin feature/MyFeature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 MIT - See LICENSE file for details
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built with:
 - **React 18 + Vite** - Fast frontend development
@@ -592,13 +592,13 @@ Built with:
 - **Tailwind CSS** - Utility-first styling
 - **Lucide Icons** - Modern icon set
 
-## 📞 Support
+## Support
 
-- 📖 Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-- 📘 See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting guides
-- 🐛 Report issues on GitHub Issues
-- 💬 Discussions welcome!
+- Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting guides
+- Report issues on GitHub Issues
+- Discussions welcome!
 
 ---
 
-**Made with ❤️ for the security community**
+**Made with love for the security community**
