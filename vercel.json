@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "package.json", "use": "@vercel/static-build" }
+  ],
+  "routes": [
+    { "src": "/_/backend/(.*)", "dest": "/backend/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ],
+  "experimental": {
+    "services": {
+      "frontend": {
+        "routePrefix": "/",
+        "framework": "vite"
+      },
+      "backend": {
+        "root": "backend",
+        "routePrefix": "/_/backend"
+      }
+    }
+  }
+}
